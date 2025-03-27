@@ -1,0 +1,28 @@
+---
+layout: default
+---
+
+<div class="home-columns">
+  <div class="column-left">
+<div class="home">
+  <h2>Documents for the frontier.</h2>
+  <p><b>Workpads are documents that do not require Internet in order to be shared and viewed in browsers or mobile applications.</b></p>
+  <p>Content is not stored or synced with servers. It's encoded and compressed into strings to create shareable links. When clicked by receivers, a workpad displays the link's content locally.</p>
+  <p></p>
+</div>
+</div>
+
+ <div class="column-right">
+  <h2><b><a href="/updates">Updates</a></b></h2>
+  <ul>
+    {% for post in site.posts limit:5 %}      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <span>{{ post.date | date: "%B %d, %Y" }}</span>
+      </li>
+    {% endfor %}
+    <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+
+  </ul>
+
+  </div>
+</div>
