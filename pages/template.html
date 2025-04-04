@@ -1,0 +1,73 @@
+---
+layout: default
+title: Template
+permalink: /template/
+---
+
+<div class="container">
+  <h1 id="title"></h1>
+  <p><strong>Start:</strong> <span id="start"></span></p>
+  <p><strong>Stop:</strong> <span id="stop"></span></p>
+  <p><strong>Complete:</strong> <span id="complete"></span></p>
+  <p><strong>Deliver:</strong> <span id="deliver"></span></p>
+  <p><strong>Short Summary:</strong> <span id="shortSummary"></span></p>
+  <p><strong>Long Summary:</strong></p>
+  <p id="longSummary"></p>
+  <p><strong>Projects:</strong></p>
+  <ul id="projects"></ul>
+  <p><strong>Locations:</strong></p>
+  <ul id="locations"></ul>
+  <p><strong>Special Notes:</strong></p>
+  <ul id="specialNotes"></ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get('data');
+    
+    if (encodedData) {
+      try {
+        // Decode the URL-safe string
+        const compressed = Uint8Array.from(atob(decodeURIComponent(encodedData)), c => c.charCodeAt(0));
+        const jsonString = pako.inflate(compressed, { to: 'string' });
+        const data = JSON.parse(jsonString);
+        
+        // Populate the template with decoded data
+        document.getElementById('title').textContent = data.title;
+        document.getElementById('start').textContent = data.start;
+        document.getElementById('stop').textContent = data.stop || 'N/A';
+        document.getElementById('complete').textContent = data.complete || 'N/A';
+        document.getElementById('deliver').textContent = data.deliver || 'N/A';
+        document.getElementById('shortSummary').textContent = data.shortSummary;
+        document.getElementById('longSummary').textContent = data.longSummary;
+
+        const projectsList = document.getElementById('projects');
+        data.projects.forEach(project => {
+          const li = document.createElement('li');
+          li.textContent = project;
+          projectsList.appendChild(li);
+        });
+
+        const locationsList = document.getElementById('locations');
+        data.locations.forEach(location => {
+          const li = document.createElement('li');
+          li.textContent = location;
+          locationsList.appendChild(li);
+        });
+
+        const specialNotesList = document.getElementById('specialNotes');
+        data.specialNotes.forEach(note => {
+          const li = document.createElement('li');
+          li.textContent = note;
+          specialNotesList.appendChild(li);
+        });
+      } catch (error) {
+        alert('Failed to decode the data. Please check the URL.');
+      }
+    } else {
+      alert('No data found in the URL.');
+    }
+  });
+</script>

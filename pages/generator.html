@@ -7,75 +7,162 @@ permalink: /generator/
 <div class="container">
   <h1>New Workpad</h1>
   
-  <form id="generatorForm">
+  <form id="generatorForm" class="worker-form">
     <div class="form-group">
-      <label for="title">Title:</label>
-      <input type="text" id="title" class="form-control" required>
+      <label for="title" class="form-label">Title:</label>
+      <input type="text" id="title" class="form-control half-width" required>
     </div>
     
     <div class="form-group">
-      <label for="date">Date:</label>
-      <input type="date" id="date" class="form-control" required>
+      <label for="start" class="form-label">Start:</label>
+      <input type="date" id="start" class="form-control" required>
     </div>
     
     <div class="form-group">
-      <label for="summary">Summary:</label>
-      <textarea id="summary" class="form-control" rows="5" required></textarea>
+      <label for="stop" class="form-label">Stop:</label>
+      <input type="date" id="stop" class="form-control">
     </div>
     
-    <button type="button" id="generateBtn" class="btn btn-primary">Generate Encoded String</button>
+    <div class="form-group">
+      <label for="complete" class="form-label">Complete:</label>
+      <input type="date" id="complete" class="form-control">
+    </div>
+    
+    <div class="form-group">
+      <label for="deliver" class="form-label">Deliver:</label>
+      <input type="date" id="deliver" class="form-control">
+    </div>
+    
+    <div class="form-group">
+      <label for="shortSummary" class="form-label">Short Summary:</label>
+      <input type="text" id="shortSummary" class="form-control half-width" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="longSummary" class="form-label">Long Summary:</label>
+      <textarea id="longSummary" class="form-control half-width" rows="5" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="projects" class="form-label">Projects:</label>
+      <input type="text" id="projectsInput" class="form-control half-width">
+      <button type="button" id="addProjectBtn" class="btn btn-secondary mt-2">Add Project</button>
+      <ul id="projectsList" class="list-group mt-2"></ul>
+    </div>
+
+    <div class="form-group">
+      <label for="locations" class="form-label">Locations:</label>
+      <input type="text" id="locationsInput" class="form-control half-width">
+      <button type="button" id="addLocationBtn" class="btn btn-secondary mt-2">Add Location</button>
+      <ul id="locationsList" class="list-group mt-2"></ul>
+    </div>
+
+    <div class="form-group">
+      <label for="specialNotes" class="form-label">Special Notes:</label>
+      <input type="text" id="specialNotesInput" class="form-control half-width">
+      <button type="button" id="addSpecialNoteBtn" class="btn btn-secondary mt-2">Add Note</button>
+      <ul id="specialNotesList" class="list-group mt-2"></ul>
+    </div>
+    
+    <button type="button" id="generateBtn" class="btn btn-primary">Generate Link</button>
   </form>
-  
-  <div class="result-container" style="margin-top: 20px; display: none;">
-    <h3>Encoded Result:</h3>
-    <textarea id="result" class="form-control" rows="4" readonly></textarea>
-    <button type="button" id="copyBtn" class="btn btn-secondary mt-2">Copy to Clipboard</button>
-  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    const addProjectBtn = document.getElementById('addProjectBtn');
+    const projectsInput = document.getElementById('projectsInput');
+    const projectsList = document.getElementById('projectsList');
+
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    const locationsInput = document.getElementById('locationsInput');
+    const locationsList = document.getElementById('locationsList');
+
+    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
+    const specialNotesInput = document.getElementById('specialNotesInput');
+    const specialNotesList = document.getElementById('specialNotesList');
+
+    // Add Project
+    addProjectBtn.addEventListener('click', function() {
+      if (projectsInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = projectsInput.value;
+        li.className = 'list-group-item';
+        projectsList.appendChild(li);
+        projectsInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Location
+    addLocationBtn.addEventListener('click', function() {
+      if (locationsInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = locationsInput.value;
+        li.className = 'list-group-item';
+        locationsList.appendChild(li);
+        locationsInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Special Note
+    addSpecialNoteBtn.addEventListener('click', function() {
+      if (specialNotesInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = specialNotesInput.value;
+        li.className = 'list-group-item';
+        specialNotesList.appendChild(li);
+        specialNotesInput.value = ''; // Clear the input field
+      }
+    });
+
     const generateBtn = document.getElementById('generateBtn');
-    const copyBtn = document.getElementById('copyBtn');
-    const resultContainer = document.querySelector('.result-container');
-    
     generateBtn.addEventListener('click', function() {
       const title = document.getElementById('title').value;
-      const date = document.getElementById('date').value;
-      const summary = document.getElementById('summary').value;
+      const start = document.getElementById('start').value;
+      const stop = document.getElementById('stop').value;
+      const complete = document.getElementById('complete').value;
+      const deliver = document.getElementById('deliver').value;
+      const shortSummary = document.getElementById('shortSummary').value;
+      const longSummary = document.getElementById('longSummary').value;
+
+      const projects = Array.from(projectsList.children).map(li => li.textContent);
+      const locations = Array.from(locationsList.children).map(li => li.textContent);
+      const specialNotes = Array.from(specialNotesList.children).map(li => li.textContent);
       
-      if (!title || !date || !summary) {
-        alert('Please fill in all fields');
+      if (!title || !start || !shortSummary || !longSummary) {
+        alert('Please fill in all required fields');
         return;
       }
       
-      // Create object with data
       const data = {
-        title: title,
-        date: date,
-        summary: summary
+        title,
+        start,
+        stop,
+        complete,
+        deliver,
+        shortSummary,
+        longSummary,
+        projects,
+        locations,
+        specialNotes
       };
       
-      // Convert to JSON string
+      // Convert data to JSON string
       const jsonString = JSON.stringify(data);
       
-      // Compress with pako (Brotli alternative since browser JS doesn't have native Brotli)
+      // Compress the JSON string
       const compressed = pako.deflate(jsonString);
       
       // Convert compressed binary data to base64
       const base64String = btoa(String.fromCharCode.apply(null, compressed));
       
-      // Display result
-      document.getElementById('result').value = base64String;
-      resultContainer.style.display = 'block';
-    });
-    
-    copyBtn.addEventListener('click', function() {
-      const resultText = document.getElementById('result');
-      resultText.select();
-      document.execCommand('copy');
-      alert('Copied to clipboard!');
+      // Encode the base64 string to make it URL-safe
+      const urlSafeString = encodeURIComponent(base64String);
+      
+      // Generate the URL
+      const link = `https://workpads.app/template.html?data=${urlSafeString}`;
+      alert(`Generated Link: ${link}`);
     });
   });
 </script>
