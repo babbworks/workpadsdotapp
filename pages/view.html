@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Workpad</title>
+</head>
+<body>
+  <h1 id="title"></h1>
+  <h3 id="date"></h3>
+  <p id="summary"></p>
+
+  <script src="https://unpkg.com/pako@latest/dist/pako.min.js"></script>
+  <script>
+    function fromBase64(base64) {
+      return new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
+    }
+
+    function decodeData(base64) {
+      const compressed = fromBase64(base64);
+      const decompressed = pako.brotliDecompress(compressed, { to: 'string' });
+      return JSON.parse(decompressed);
+    }
+
+    const hash = location.hash.slice(1);
+    if (hash) {
+      try {
+        const data = decodeData(hash);
+        document.getElementById('title').innerText = data.title;
+        document.getElementById('date').innerText = data.date;
+        document.getElementById('summary').innerText = data.summary;
+      } catch (err) {
+        document.body.innerHTML = '<p>Error decoding data.</p>';
+      }
+    } else {
+      document.body.innerHTML = '<p>No data found in URL.</p>';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+---
+layout: default
+title: Viewer
+permalink: /viewer/
+---
+
+<div class="container">
+  <h1>Content Viewer</h1>
+  
+  <div class="form-group">
+    <label for="encodedString">Paste Encoded String:</label>
+    <textarea id="encodedString" class="form-control" rows="4"></textarea>
+    <button type="button" id="decodeBtn" class="btn btn-primary mt-2">Decode Content</button>
+  </div>
+  
+  <div id="contentView" style="margin-top: 20px; display: none;">
+    <h2 id="viewTitle"></h2>
+    <p id="viewDate"></p>
+    <div id="viewSummary"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const decodeBtn = document.getElementById('decodeBtn');
+    const contentView = document.getElementById('contentView');
+    
+    decodeBtn.addEventListener('click', function() {
+      const encodedString = document.getElementById('encodedString').value.trim();
+      
+      if (!encodedString) {
+        alert('Please paste an encoded string');
+        return;
+      }
+      
+      try {
+        // Convert base64 to binary
+        const binary = atob(encodedString);
+        
+        // Convert to Uint8Array
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        
+        // Decompress with pako
+        const decompressed = pako.inflate(bytes, { to: 'string' });
+        
+        // Parse JSON
+        const data = JSON.parse(decompressed);
+        
+        // Display data
+        document.getElementById('viewTitle').textContent = data.title;
+        document.getElementById('viewDate').textContent = new Date(data.date).toLocaleDateString();
+        document.getElementById('viewSummary').textContent = data.summary;
+        
+        contentView.style.display = 'block';
+      } catch (error) {
+        alert('Error decoding the string: ' + error.message);
+      }
+    });
+  });
+</script>

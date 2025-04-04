@@ -1,0 +1,81 @@
+---
+layout: default
+title: Generator
+permalink: /generator/
+---
+
+<div class="container">
+  <h1>Content Generator</h1>
+  
+  <form id="generatorForm">
+    <div class="form-group">
+      <label for="title">Title:</label>
+      <input type="text" id="title" class="form-control" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="date">Date:</label>
+      <input type="date" id="date" class="form-control" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="summary">Summary:</label>
+      <textarea id="summary" class="form-control" rows="5" required></textarea>
+    </div>
+    
+    <button type="button" id="generateBtn" class="btn btn-primary">Generate Encoded String</button>
+  </form>
+  
+  <div class="result-container" style="margin-top: 20px; display: none;">
+    <h3>Encoded Result:</h3>
+    <textarea id="result" class="form-control" rows="4" readonly></textarea>
+    <button type="button" id="copyBtn" class="btn btn-secondary mt-2">Copy to Clipboard</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const resultContainer = document.querySelector('.result-container');
+    
+    generateBtn.addEventListener('click', function() {
+      const title = document.getElementById('title').value;
+      const date = document.getElementById('date').value;
+      const summary = document.getElementById('summary').value;
+      
+      if (!title || !date || !summary) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      // Create object with data
+      const data = {
+        title: title,
+        date: date,
+        summary: summary
+      };
+      
+      // Convert to JSON string
+      const jsonString = JSON.stringify(data);
+      
+      // Compress with pako (Brotli alternative since browser JS doesn't have native Brotli)
+      const compressed = pako.deflate(jsonString);
+      
+      // Convert compressed binary data to base64
+      const base64String = btoa(String.fromCharCode.apply(null, compressed));
+      
+      // Display result
+      document.getElementById('result').value = base64String;
+      resultContainer.style.display = 'block';
+    });
+    
+    copyBtn.addEventListener('click', function() {
+      const resultText = document.getElementById('result');
+      resultText.select();
+      document.execCommand('copy');
+      alert('Copied to clipboard!');
+    });
+  });
+</script>
