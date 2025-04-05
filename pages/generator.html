@@ -8,50 +8,42 @@ permalink: /new/
   <h1>New Workpad</h1>
   
   <form id="generatorForm" class="worker-form">
-    <div class="form-group">
-      <label for="title" class="form-label">Title:</label>
-      <input type="text" id="title" class="form-control half-width" required>
+    <div class="form-group mb-3">
+      <input type="text" id="title" class="form-control half-width" placeholder="**Title**" required>
     </div>
     
-    <div class="form-group">
-      <label for="deliver" class="form-label">Deliver:</label>
-      <input type="date" id="deliver" class="form-control" required>
+    <div class="form-group mb-3">
+      <input type="date" id="deliver" class="form-control" placeholder="**Deliver Date**" required>
     </div>
     
-    <div class="form-group">
-      <label for="shortSummary" class="form-label">Short Summary:</label>
-      <input type="text" id="shortSummary" class="form-control half-width" required>
+    <div class="form-group mb-3">
+      <input type="text" id="shortSummary" class="form-control half-width" placeholder="**Short Summary**" required>
     </div>
     
-    <div class="form-group">
-      <label for="longSummary" class="form-label">Long Summary:</label>
-      <textarea id="longSummary" class="form-control half-width" rows="5" required></textarea>
+    <div class="form-group mb-3">
+      <textarea id="longSummary" class="form-control half-width" rows="5" placeholder="**Long Summary**" required></textarea>
     </div>
 
-    <div class="form-group">
-      <label for="projects" class="form-label">Projects:</label>
-      <input type="text" id="projectsInput" class="form-control half-width">
+    <div class="form-group mb-3">
+      <input type="text" id="projectsInput" class="form-control half-width" placeholder="**Projects**">
       <button type="button" id="addProjectBtn" class="btn btn-secondary mt-2">Add Project</button>
       <ul id="projectsList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group">
-      <label for="locations" class="form-label">Locations:</label>
-      <input type="text" id="locationsInput" class="form-control half-width">
+    <div class="form-group mb-3">
+      <input type="text" id="locationsInput" class="form-control half-width" placeholder="**Locations**">
       <button type="button" id="addLocationBtn" class="btn btn-secondary mt-2">Add Location</button>
       <ul id="locationsList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group">
-      <label for="specialNotes" class="form-label">Special Notes:</label>
-      <input type="text" id="specialNotesInput" class="form-control half-width">
+    <div class="form-group mb-3">
+      <input type="text" id="specialNotesInput" class="form-control half-width" placeholder="**Special Notes**">
       <button type="button" id="addSpecialNoteBtn" class="btn btn-secondary mt-2">Add Note</button>
       <ul id="specialNotesList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group">
-      <label for="encryptionKey" class="form-label">Encryption Key:</label>
-      <input type="text" id="encryptionKey" class="form-control half-width" placeholder="Enter a simple key (e.g., Car)" required>
+    <div class="form-group mb-3">
+      <input type="text" id="encryptionKey" class="form-control half-width" placeholder="**Encryption Key**" required>
     </div>
     
     <button type="button" id="generateBtn" class="btn btn-primary">Generate Link</button>
@@ -61,6 +53,51 @@ permalink: /new/
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    const addProjectBtn = document.getElementById('addProjectBtn');
+    const projectsInput = document.getElementById('projectsInput');
+    const projectsList = document.getElementById('projectsList');
+
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    const locationsInput = document.getElementById('locationsInput');
+    const locationsList = document.getElementById('locationsList');
+
+    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
+    const specialNotesInput = document.getElementById('specialNotesInput');
+    const specialNotesList = document.getElementById('specialNotesList');
+
+    // Add Project
+    addProjectBtn.addEventListener('click', function() {
+      if (projectsInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = projectsInput.value;
+        li.className = 'list-group-item';
+        projectsList.appendChild(li);
+        projectsInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Location
+    addLocationBtn.addEventListener('click', function() {
+      if (locationsInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = locationsInput.value;
+        li.className = 'list-group-item';
+        locationsList.appendChild(li);
+        locationsInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Special Note
+    addSpecialNoteBtn.addEventListener('click', function() {
+      if (specialNotesInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = specialNotesInput.value;
+        li.className = 'list-group-item';
+        specialNotesList.appendChild(li);
+        specialNotesInput.value = ''; // Clear the input field
+      }
+    });
+
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.addEventListener('click', function() {
       const title = document.getElementById('title').value;
@@ -69,9 +106,9 @@ permalink: /new/
       const longSummary = document.getElementById('longSummary').value;
       const encryptionKey = document.getElementById('encryptionKey').value;
 
-      const projects = Array.from(document.getElementById('projectsList').children).map(li => li.textContent);
-      const locations = Array.from(document.getElementById('locationsList').children).map(li => li.textContent);
-      const specialNotes = Array.from(document.getElementById('specialNotesList').children).map(li => li.textContent);
+      const projects = Array.from(projectsList.children).map(li => li.textContent);
+      const locations = Array.from(locationsList.children).map(li => li.textContent);
+      const specialNotes = Array.from(specialNotesList.children).map(li => li.textContent);
 
       if (!title || !deliver || !shortSummary || !longSummary || !encryptionKey) {
         alert('Please fill in all required fields');
