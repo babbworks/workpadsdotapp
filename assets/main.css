@@ -252,6 +252,48 @@ table {
         .site-nav .page-link:not(:last-child) {
           margin-right: 0; } }
 
+
+<style>
+  .home-columns {
+    display: flex; /* Use flexbox for layout */
+    gap: 20px; /* Add spacing between columns */
+  }
+
+  .column-left,
+  .column-right {
+    flex: 1; /* Make both columns take up equal width */
+  }
+
+  .column-left {
+    /* Optional: Add specific styling for the left column */
+  }
+
+  .column-right {
+    /* Optional: Add specific styling for the right column */
+  }
+</style>
+
+
+<style>
+  .home-columns {
+    display: flex; /* Use flexbox for layout */
+    gap: 20px; /* Add spacing between columns */
+  }
+
+  .column-left,
+  .column-right {
+    flex: 1; /* Make both columns take up equal width */
+  }
+
+  .column-left {
+    /* Optional: Add specific styling for the left column */
+  }
+
+  .column-right {
+    /* Optional: Add specific styling for the right column */
+  }
+</style>
+
 /**
  * Site footer
  */

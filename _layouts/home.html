@@ -1,0 +1,53 @@
+---
+layout: default
+title: Workpads
+---
+<div class="home-columns">
+  <div class="column-left">
+
+
+<div class="home">
+<h2>Pads</h2>
+  <ul>
+    {% for post in site.posts limit:5 %}      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </li>
+    {% endfor %}
+    <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+  </ul>
+</div>
+</div>
+
+ <div class="column-right">
+<h2>Types</h2>
+<ul>
+  {% for category in site.categories %}
+    <li>
+      <a href="{{ site.baseurl }}/categories/{{ category[0] | slugify }}/">
+        {{ category[0] }} ({{ category[1].size }})
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+  </div>
+</div>
+
+<style>
+  .home-columns {
+    display: flex; /* Use flexbox for layout */
+    gap: 20px; /* Add spacing between columns */
+  }
+
+  .column-left,
+  .column-right {
+    flex: 1; /* Make both columns take up equal width */
+  }
+
+  .column-left {
+    /* Optional: Add specific styling for the left column */
+  }
+
+  .column-right {
+    /* Optional: Add specific styling for the right column */
+  }
+</style>

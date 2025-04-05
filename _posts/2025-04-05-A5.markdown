@@ -1,9 +1,8 @@
 ---
-layout: default
-title: NEW
-permalink: /new/
+layout: post
+title:  "A5 / projects:locations:special notes"
+categories: pads
 ---
-
 <style>
   /* Make placeholder text black */
   ::placeholder {
