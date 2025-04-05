@@ -61,51 +61,6 @@ permalink: /new/
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const addProjectBtn = document.getElementById('addProjectBtn');
-    const projectsInput = document.getElementById('projectsInput');
-    const projectsList = document.getElementById('projectsList');
-
-    const addLocationBtn = document.getElementById('addLocationBtn');
-    const locationsInput = document.getElementById('locationsInput');
-    const locationsList = document.getElementById('locationsList');
-
-    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
-    const specialNotesInput = document.getElementById('specialNotesInput');
-    const specialNotesList = document.getElementById('specialNotesList');
-
-    // Add Project
-    addProjectBtn.addEventListener('click', function() {
-      if (projectsInput.value.trim()) {
-        const li = document.createElement('li');
-        li.textContent = projectsInput.value;
-        li.className = 'list-group-item';
-        projectsList.appendChild(li);
-        projectsInput.value = ''; // Clear the input field
-      }
-    });
-
-    // Add Location
-    addLocationBtn.addEventListener('click', function() {
-      if (locationsInput.value.trim()) {
-        const li = document.createElement('li');
-        li.textContent = locationsInput.value;
-        li.className = 'list-group-item';
-        locationsList.appendChild(li);
-        locationsInput.value = ''; // Clear the input field
-      }
-    });
-
-    // Add Special Note
-    addSpecialNoteBtn.addEventListener('click', function() {
-      if (specialNotesInput.value.trim()) {
-        const li = document.createElement('li');
-        li.textContent = specialNotesInput.value;
-        li.className = 'list-group-item';
-        specialNotesList.appendChild(li);
-        specialNotesInput.value = ''; // Clear the input field
-      }
-    });
-
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.addEventListener('click', function() {
       const title = document.getElementById('title').value;
@@ -114,15 +69,15 @@ permalink: /new/
       const longSummary = document.getElementById('longSummary').value;
       const encryptionKey = document.getElementById('encryptionKey').value;
 
-      const projects = Array.from(projectsList.children).map(li => li.textContent);
-      const locations = Array.from(locationsList.children).map(li => li.textContent);
-      const specialNotes = Array.from(specialNotesList.children).map(li => li.textContent);
-      
+      const projects = Array.from(document.getElementById('projectsList').children).map(li => li.textContent);
+      const locations = Array.from(document.getElementById('locationsList').children).map(li => li.textContent);
+      const specialNotes = Array.from(document.getElementById('specialNotesList').children).map(li => li.textContent);
+
       if (!title || !deliver || !shortSummary || !longSummary || !encryptionKey) {
         alert('Please fill in all required fields');
         return;
       }
-      
+
       const data = {
         title,
         deliver,
@@ -132,27 +87,32 @@ permalink: /new/
         locations,
         specialNotes
       };
-      
-      // Convert data to JSON string
-      const jsonString = JSON.stringify(data);
-      
-      // Encrypt the JSON string using a simple XOR cipher with the encryption key
-      const encryptedData = jsonString.split('').map((char, i) => 
-        String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
-      ).join('');
-      
-      // Compress the encrypted string
-      const compressed = pako.deflate(encryptedData);
-      
-      // Convert compressed binary data to base64
-      const base64String = btoa(String.fromCharCode.apply(null, compressed));
-      
-      // Encode the base64 string to make it URL-safe
-      const urlSafeString = encodeURIComponent(base64String);
-      
-      // Generate the URL
-      const link = `https://workpads.app/temp.html?data=${urlSafeString}`;
-      alert(`Generated Link: ${link}`);
+
+      try {
+        // Convert data to JSON string
+        const jsonString = JSON.stringify(data);
+
+        // Encrypt the JSON string using a simple XOR cipher with the encryption key
+        const encryptedData = jsonString.split('').map((char, i) =>
+          String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
+        ).join('');
+
+        // Compress the encrypted string
+        const compressed = pako.deflate(encryptedData);
+
+        // Convert compressed binary data to base64
+        const base64String = btoa(String.fromCharCode.apply(null, compressed));
+
+        // Encode the base64 string to make it URL-safe
+        const urlSafeString = encodeURIComponent(base64String);
+
+        // Generate the URL
+        const link = `https://workpads.app/temp.html?data=${urlSafeString}`;
+        alert(`Generated Link: ${link}`);
+      } catch (error) {
+        console.error('Error generating the link:', error);
+        alert('Failed to generate the link. Please try again.');
+      }
     });
   });
 </script>
