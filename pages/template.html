@@ -44,24 +44,24 @@ permalink: /temp
 
       if (encodedData) {
         try {
-          console.log('Encoded Data:', encodedData); // Log the encoded data
+          console.log('Encoded Data:', encodedData); // Debugging log
 
           // Decode the URL-safe string
           const compressed = Uint8Array.from(atob(decodeURIComponent(encodedData)), c => c.charCodeAt(0));
-          console.log('Compressed Data:', compressed); // Log the compressed data
+          console.log('Compressed Data:', compressed); // Debugging log
 
           // Decompress the data
           const encryptedString = pako.inflate(compressed, { to: 'string' });
-          console.log('Encrypted String:', encryptedString); // Log the encrypted string
+          console.log('Encrypted String:', encryptedString); // Debugging log
 
           // Decrypt the string using the provided encryption key
           const jsonString = encryptedString.split('').map((char, i) =>
             String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
           ).join('');
-          console.log('Decrypted JSON String:', jsonString); // Log the decrypted JSON string
+          console.log('Decrypted JSON String:', jsonString); // Debugging log
 
           const data = JSON.parse(jsonString);
-          console.log('Parsed Data:', data); // Log the parsed data object
+          console.log('Parsed Data:', data); // Debugging log
 
           // Populate the template with decoded data
           document.getElementById('title').textContent = data.title;
