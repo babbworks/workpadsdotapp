@@ -1,6 +1,5 @@
 ---
 layout: default
-title: temp
 permalink: /temp
 ---
 
@@ -14,7 +13,6 @@ permalink: /temp
 <div class="container">
   <h1 id="title"></h1>
   <p><strong>Deliver:</strong> <span id="deliver"></span></p>
-  <p><strong>Short Summary:</strong> <span id="shortSummary"></span></p>
   <p><strong>Long Summary:</strong></p>
   <p id="longSummary"></p>
   <p><strong>Projects:</strong></p>
@@ -66,7 +64,6 @@ permalink: /temp
           // Populate the template with decoded data
           document.getElementById('title').textContent = data.title;
           document.getElementById('deliver').textContent = data.deliver;
-          document.getElementById('shortSummary').textContent = data.shortSummary;
           document.getElementById('longSummary').textContent = data.longSummary;
 
           const projectsList = document.getElementById('projects');

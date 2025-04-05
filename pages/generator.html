@@ -1,53 +1,80 @@
 ---
 layout: default
-title: new
+title: NEW
 permalink: /new/
 ---
 
+<style>
+  /* Make placeholder text black */
+  ::placeholder {
+    color: black;
+    opacity: 1; /* Ensure full opacity */
+  }
+
+  /* Darken the outline of form boxes */
+  .form-control {
+    border: 2px solid #333; /* Darker border */
+    width: 100%; /* Full width of the container */
+  }
+
+  /* Add spacing between form elements */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+</style>
+
 <div class="container">
-  <h1>New Workpad</h1>
+<p>Created links hold all your information. Data is never saved or synced.</p>
   
   <form id="generatorForm" class="worker-form">
-    <div class="form-group mb-3">
-      <input type="text" id="title" class="form-control half-width" placeholder="**Title**" required>
+    <div class="form-group">
+      <input type="text" id="title" class="form-control" placeholder="Title">
     </div>
     
-    <div class="form-group mb-3">
-      <input type="date" id="deliver" class="form-control" placeholder="**Deliver Date**" required>
-    </div>
+    <div class="form-group">
+      <input type="date" id="deliver" class="form-control" placeholder="Deliver Date">
+    </div>  
     
-    <div class="form-group mb-3">
-      <input type="text" id="shortSummary" class="form-control half-width" placeholder="**Short Summary**" required>
-    </div>
-    
-    <div class="form-group mb-3">
-      <textarea id="longSummary" class="form-control half-width" rows="5" placeholder="**Long Summary**" required></textarea>
+    <div class="form-group">
+      <textarea id="longSummary" class="form-control" rows="5" placeholder="Long Summary"></textarea>
     </div>
 
-    <div class="form-group mb-3">
-      <input type="text" id="projectsInput" class="form-control half-width" placeholder="**Projects**">
+    <div class="form-group">
+      <input type="text" id="projectsInput" class="form-control" placeholder="Projects">
       <button type="button" id="addProjectBtn" class="btn btn-secondary mt-2">Add Project</button>
       <ul id="projectsList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group mb-3">
-      <input type="text" id="locationsInput" class="form-control half-width" placeholder="**Locations**">
+    <div class="form-group">
+      <input type="text" id="locationsInput" class="form-control" placeholder="Locations">
       <button type="button" id="addLocationBtn" class="btn btn-secondary mt-2">Add Location</button>
       <ul id="locationsList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group mb-3">
-      <input type="text" id="specialNotesInput" class="form-control half-width" placeholder="**Special Notes**">
+    <div class="form-group">
+      <textarea id="specialNotesInput" class="form-control" rows="5" placeholder="Special Notes"></textarea>
       <button type="button" id="addSpecialNoteBtn" class="btn btn-secondary mt-2">Add Note</button>
       <ul id="specialNotesList" class="list-group mt-2"></ul>
     </div>
 
-    <div class="form-group mb-3">
-      <input type="text" id="encryptionKey" class="form-control half-width" placeholder="**Encryption Key**" required>
+ 
+    <hr class="my-4">
+    <br>
+    <p>
+    <button type="button" id="generateUnencryptedBtn" class="btn btn-secondary">Generate Unencrypted Link</button>
+    </p>
+    <div class="form-group">
+      <input type="text" id="encryptionKey" class="form-control" placeholder="Passphrase">
+      <button type="button" id="generateEncryptedBtn" class="btn btn-primary">Generate Encrypted Link</button>
     </div>
-    
-    <button type="button" id="generateBtn" class="btn btn-primary">Generate Link</button>
   </form>
+
+  <!-- Generated Link Section -->
+  <div id="generatedLinkSection" class="mt-4" style="display: none;">
+    <p id="nonClickableLink" class="mb-2"></p>
+    <a id="clickableLink" href="#" target="_blank" class="d-block mb-3"></a>
+    <button type="button" id="copyLinkBtn" class="btn btn-secondary">Copy Link</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
@@ -64,6 +91,13 @@ permalink: /new/
     const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
     const specialNotesInput = document.getElementById('specialNotesInput');
     const specialNotesList = document.getElementById('specialNotesList');
+
+    const generateEncryptedBtn = document.getElementById('generateEncryptedBtn');
+    const generateUnencryptedBtn = document.getElementById('generateUnencryptedBtn');
+    const generatedLinkSection = document.getElementById('generatedLinkSection');
+    const nonClickableLink = document.getElementById('nonClickableLink');
+    const clickableLink = document.getElementById('clickableLink');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
 
     // Add Project
     addProjectBtn.addEventListener('click', function() {
@@ -98,11 +132,19 @@ permalink: /new/
       }
     });
 
-    const generateBtn = document.getElementById('generateBtn');
-    generateBtn.addEventListener('click', function() {
+    // Generate Encrypted Link
+    generateEncryptedBtn.addEventListener('click', function() {
+      generateLink(true);
+    });
+
+    // Generate Unencrypted Link
+    generateUnencryptedBtn.addEventListener('click', function() {
+      generateLink(false);
+    });
+
+    function generateLink(encrypt) {
       const title = document.getElementById('title').value;
       const deliver = document.getElementById('deliver').value;
-      const shortSummary = document.getElementById('shortSummary').value;
       const longSummary = document.getElementById('longSummary').value;
       const encryptionKey = document.getElementById('encryptionKey').value;
 
@@ -110,7 +152,7 @@ permalink: /new/
       const locations = Array.from(locationsList.children).map(li => li.textContent);
       const specialNotes = Array.from(specialNotesList.children).map(li => li.textContent);
 
-      if (!title || !deliver || !shortSummary || !longSummary || !encryptionKey) {
+      if (!title || !deliver || !longSummary || (encrypt && !encryptionKey)) {
         alert('Please fill in all required fields');
         return;
       }
@@ -118,7 +160,6 @@ permalink: /new/
       const data = {
         title,
         deliver,
-        shortSummary,
         longSummary,
         projects,
         locations,
@@ -129,12 +170,17 @@ permalink: /new/
         // Convert data to JSON string
         const jsonString = JSON.stringify(data);
 
-        // Encrypt the JSON string using a simple XOR cipher with the encryption key
-        const encryptedData = jsonString.split('').map((char, i) =>
-          String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
-        ).join('');
+        let encryptedData;
+        if (encrypt) {
+          // Encrypt the JSON string using a simple XOR cipher with the encryption key
+          encryptedData = jsonString.split('').map((char, i) =>
+            String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
+          ).join('');
+        } else {
+          encryptedData = jsonString; // No encryption
+        }
 
-        // Compress the encrypted string
+        // Compress the string
         const compressed = pako.deflate(encryptedData);
 
         // Convert compressed binary data to base64
@@ -145,11 +191,26 @@ permalink: /new/
 
         // Generate the URL
         const link = `https://workpads.app/temp.html?data=${urlSafeString}`;
-        alert(`Generated Link: ${link}`);
+
+        // Display the generated link
+        nonClickableLink.textContent = link;
+        clickableLink.textContent = link;
+        clickableLink.href = link;
+        generatedLinkSection.style.display = 'block';
+
+        // Copy Link Button
+        copyLinkBtn.addEventListener('click', function() {
+          navigator.clipboard.writeText(link).then(() => {
+            alert('Link copied to clipboard!');
+          }).catch(err => {
+            console.error('Failed to copy link:', err);
+          });
+        });
       } catch (error) {
         console.error('Error generating the link:', error);
         alert('Failed to generate the link. Please try again.');
       }
-    });
+    }
   });
 </script>
+<p>by <a href="https://www.babb.tel">Babb</a></p>
