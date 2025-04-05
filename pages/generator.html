@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Generator
-permalink: /generator/
+title: new
+permalink: /new/
 ---
 
 <div class="container">
@@ -14,23 +14,8 @@ permalink: /generator/
     </div>
     
     <div class="form-group">
-      <label for="start" class="form-label">Start:</label>
-      <input type="date" id="start" class="form-control" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="stop" class="form-label">Stop:</label>
-      <input type="date" id="stop" class="form-control">
-    </div>
-    
-    <div class="form-group">
-      <label for="complete" class="form-label">Complete:</label>
-      <input type="date" id="complete" class="form-control">
-    </div>
-    
-    <div class="form-group">
       <label for="deliver" class="form-label">Deliver:</label>
-      <input type="date" id="deliver" class="form-control">
+      <input type="date" id="deliver" class="form-control" required>
     </div>
     
     <div class="form-group">
@@ -62,6 +47,11 @@ permalink: /generator/
       <input type="text" id="specialNotesInput" class="form-control half-width">
       <button type="button" id="addSpecialNoteBtn" class="btn btn-secondary mt-2">Add Note</button>
       <ul id="specialNotesList" class="list-group mt-2"></ul>
+    </div>
+
+    <div class="form-group">
+      <label for="encryptionKey" class="form-label">Encryption Key:</label>
+      <input type="text" id="encryptionKey" class="form-control half-width" placeholder="Enter a simple key (e.g., Car)" required>
     </div>
     
     <button type="button" id="generateBtn" class="btn btn-primary">Generate Link</button>
@@ -119,27 +109,22 @@ permalink: /generator/
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.addEventListener('click', function() {
       const title = document.getElementById('title').value;
-      const start = document.getElementById('start').value;
-      const stop = document.getElementById('stop').value;
-      const complete = document.getElementById('complete').value;
       const deliver = document.getElementById('deliver').value;
       const shortSummary = document.getElementById('shortSummary').value;
       const longSummary = document.getElementById('longSummary').value;
+      const encryptionKey = document.getElementById('encryptionKey').value;
 
       const projects = Array.from(projectsList.children).map(li => li.textContent);
       const locations = Array.from(locationsList.children).map(li => li.textContent);
       const specialNotes = Array.from(specialNotesList.children).map(li => li.textContent);
       
-      if (!title || !start || !shortSummary || !longSummary) {
+      if (!title || !deliver || !shortSummary || !longSummary || !encryptionKey) {
         alert('Please fill in all required fields');
         return;
       }
       
       const data = {
         title,
-        start,
-        stop,
-        complete,
         deliver,
         shortSummary,
         longSummary,
@@ -151,8 +136,13 @@ permalink: /generator/
       // Convert data to JSON string
       const jsonString = JSON.stringify(data);
       
-      // Compress the JSON string
-      const compressed = pako.deflate(jsonString);
+      // Encrypt the JSON string using a simple XOR cipher with the encryption key
+      const encryptedData = jsonString.split('').map((char, i) => 
+        String.fromCharCode(char.charCodeAt(0) ^ encryptionKey.charCodeAt(i % encryptionKey.length))
+      ).join('');
+      
+      // Compress the encrypted string
+      const compressed = pako.deflate(encryptedData);
       
       // Convert compressed binary data to base64
       const base64String = btoa(String.fromCharCode.apply(null, compressed));

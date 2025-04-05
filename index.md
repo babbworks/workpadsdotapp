@@ -1,6 +1,5 @@
 ---
 layout: default
-title: workpads
+title: project
+permalink: /project/
 ---
-
-<p>This is workpads</p>
