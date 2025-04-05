@@ -4,31 +4,36 @@ title: Workpads
 ---
 <div class="home-columns">
   <div class="column-left">
+    <div class="home">
+      <h2>Pads</h2>
+      <div class="search-container">
+        <p><input type="text" id="searchBox" class="form-control" placeholder="Search pads..."></p>
+      </div>
+      <ul>
+        {% for post in site.posts limit:5 %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>  
+          </li>
+        {% endfor %}
+        <h5 class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></h5>
+      </ul>
+    </div>
+  </div>
 
-
-<div class="home">
-<h2>Pads</h2>
-  <ul>
-    {% for post in site.posts limit:5 %}      <li>
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      </li>
-    {% endfor %}
-    <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
-  </ul>
-</div>
-</div>
-
- <div class="column-right">
-<h2>Types</h2>
-<ul>
-  {% for category in site.categories %}
-    <li>
-      <a href="{{ site.baseurl }}/categories/{{ category[0] | slugify }}/">
-        {{ category[0] }} ({{ category[1].size }})
-      </a>
-    </li>
-  {% endfor %}
-</ul>
+  <div class="column-right">
+    <h2>Types</h2>
+    <div class="search-container">
+      <p><input type="text" id="typeSearchBox" class="form-control" placeholder="Search categories..."></p>
+    </div>
+    <ul id="typeList">
+      {% for category in site.categories %}
+        <li>
+          <a href="{{ site.baseurl }}/categories/{{ category[0] | slugify }}/">
+            {{ category[0] }} ({{ category[1].size }})
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
   </div>
 </div>
 
@@ -51,3 +56,45 @@ title: Workpads
     /* Optional: Add specific styling for the right column */
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchBox = document.getElementById('searchBox');
+    const postList = document.querySelectorAll('.home ul li'); // Select all visible posts
+
+    const typeSearchBox = document.getElementById('typeSearchBox');
+    const typeList = document.querySelectorAll('#typeList li'); // Select all visible categories
+
+    // Filter posts based on the search query
+    searchBox.addEventListener('input', function () {
+      const query = searchBox.value.toLowerCase();
+
+      postList.forEach(post => {
+        const postTitle = post.textContent.toLowerCase();
+
+        // Show or hide posts based on the query
+        if (postTitle.includes(query)) {
+          post.style.display = ''; // Show the post
+        } else {
+          post.style.display = 'none'; // Hide the post
+        }
+      });
+    });
+
+    // Filter categories based on the search query
+    typeSearchBox.addEventListener('input', function () {
+      const query = typeSearchBox.value.toLowerCase();
+
+      typeList.forEach(type => {
+        const typeName = type.textContent.toLowerCase();
+
+        // Show or hide categories based on the query
+        if (typeName.includes(query)) {
+          type.style.display = ''; // Show the category
+        } else {
+          type.style.display = 'none'; // Hide the category
+        }
+      });
+    });
+  });
+</script>

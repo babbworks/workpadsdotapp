@@ -1,3 +1,41 @@
 .site-title {
   font-size: 2rem; /* Adjust this value */
 }
+
+.search-container {
+  margin: 20px 0;
+  width: 100%; /* Ensure the container spans the full width */
+}
+
+#searchBox {
+  width: 100%; /* Make the search box responsive */
+  max-width: 600px; /* Optional: Limit the maximum width */
+  padding: 10px;
+  border: 2px solid #333;
+  border-radius: 5px;
+  margin: 0 auto; /* Center the search box */
+  display: block;
+}
+
+#searchResults {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+#searchResults li {
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+#searchResults li a {
+  text-decoration: none;
+  color: #333;
+}
+
+#searchResults li a:hover {
+  text-decoration: underline;
+}

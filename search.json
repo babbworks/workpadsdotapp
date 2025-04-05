@@ -1,0 +1,16 @@
+<!-- filepath: /search.json -->
+---
+layout: none
+---
+[
+  {% for post in site.posts %}
+  {
+    "title": "{{ post.title | escape }}",
+    "url": "{{ post.url | relative_url }}",
+    "categories": "{{ post.categories | join: ', ' }}",
+    "tags": "{{ post.tags | join: ', ' }}",
+    "summary": "{{ post.summary | escape }}",
+    "author": "{{ post.author | escape }}"
+  }{% if forloop.last == false %},{% endif %}
+  {% endfor %}
+]

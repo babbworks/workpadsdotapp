@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "A5 / projects:locations:special notes"
-categories: pads
+title:  "A5: Basic Project"
+categories: pads projects
 ---
 <style>
   /* Make placeholder text black */
@@ -23,7 +23,7 @@ categories: pads
 </style>
 
 <div class="container">
-<p>A workpad is a shareable link, no files, storage or Internet needed. <a href="https://workpads.org/how">Learn more</a>.</p>  
+
   <form id="generatorForm" class="worker-form">
     <div class="form-group">
       <input type="text" id="title" class="form-control" placeholder="Title">
