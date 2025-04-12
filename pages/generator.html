@@ -191,7 +191,7 @@ permalink: /new/
       const compressedData = compressAndEncodeFormData();
 
       // Redirect to template.html with the compressed data as a query parameter
-      window.location.href = `/template.html?data=${encodeURIComponent(compressedData)}`;
+      window.location.href = `/temp/?data=${encodeURIComponent(compressedData)}`;
     });
 
     // Add Contact
