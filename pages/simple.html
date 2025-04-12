@@ -1,7 +1,7 @@
 ---
 layout: default
-title: new
-permalink: /new/
+title: main
+permalink: /main/
 ---
 
 <style>
@@ -41,9 +41,9 @@ permalink: /new/
 
   /* Button styling */
   .btn {
-    width: 95%; /* Full width within the form wrapper */
+    width: 100%; /* Full width within the form wrapper */
     border-radius: 4px;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem;
     font-size: 1rem;
     margin-top: 0.5rem; /* Add spacing above buttons */
     transition: background-color 0.3s ease, transform 0.2s ease;
@@ -62,12 +62,13 @@ permalink: /new/
   /* Styling for the output list */
   .list-group {
     display: none; /* Initially hidden */
+    width: 100%; /* Full width within the form wrapper */
     border: 1px solid black; /* Thin black border around the output */
     border-radius: 4px;
     padding: 0.5rem;
     margin-top: 0.5rem;
     list-style-position: inside; /* Ensure the bullet points are inside the border */
-    width: 95%; /* Align with the input boxes and buttons */
+    width: 90%; /* Align with the input boxes and buttons */
   }
 
   .list-group-item {
@@ -144,39 +145,65 @@ permalink: /new/
         <button type="button" id="generateEncryptedBtn" class="btn btn-primary">Generate Encrypted Link</button>
       </div>
     </form>
+
+    <!-- Generated Link Section -->
+    <div id="generatedLinkSection" class="mt-4" style="display: none;">
+      <p id="nonClickableLink" class="mb-2"></p>
+      <a id="clickableLink" href="#" target="_blank" class="d-block mb-3"></a>
+      <button type="button" id="copyLinkBtn" class="btn btn-secondary">Copy Link</button>
+    </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const generatorForm = document.getElementById('generatorForm');
-    const generateUnencryptedBtn = document.getElementById('generateUnencryptedBtn');
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    const contactInput = document.getElementById('contact');
+    const locationsList = document.getElementById('locationsList');
 
-    // Function to compress and encode form data
-    function compressAndEncodeFormData() {
-      const formData = new FormData(generatorForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
+    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
+    const noteInput = document.getElementById('noteInput');
+    const specialNotesList = document.getElementById('specialNotesList');
 
-      // Convert data to JSON string
-      const jsonString = JSON.stringify(data);
+    const addActionBtn = document.getElementById('addActionBtn');
+    const taskInput = document.getElementById('taskInput');
+    const actionsList = document.getElementById('actionsList');
 
-      // Compress the JSON string using pako
-      const compressed = pako.deflate(jsonString, { to: 'string' });
+    // Add Contact
+    addLocationBtn.addEventListener('click', function() {
+      if (contactInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = contactInput.value;
+        li.className = 'list-group-item';
+        locationsList.appendChild(li);
+        locationsList.style.display = 'block'; // Show the black box
+        contactInput.value = ''; // Clear the input field
+      }
+    });
 
-      // Encode the compressed data in Base64
-      return btoa(compressed);
-    }
+    // Add Note
+    addSpecialNoteBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = noteInput.value;
+        li.className = 'list-group-item';
+        specialNotesList.appendChild(li);
+        specialNotesList.style.display = 'block'; // Show the black box
+        noteInput.value = ''; // Clear the input field
+      }
+    });
 
-    // Event listener for generating the link
-    generateUnencryptedBtn.addEventListener('click', function() {
-      const compressedData = compressAndEncodeFormData();
-
-      // Redirect to template.html with the compressed data as a query parameter
-      window.location.href = `/template.html?data=${encodeURIComponent(compressedData)}`;
+    // Add Task
+    addActionBtn.addEventListener('click', function() {
+      if (taskInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = taskInput.value;
+        li.className = 'list-group-item';
+        actionsList.appendChild(li);
+        actionsList.style.display = 'block'; // Show the black box
+        taskInput.value = ''; // Clear the input field
+      }
     });
   });
 </script>
