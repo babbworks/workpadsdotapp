@@ -1,0 +1,106 @@
+---
+layout: default
+title: temp
+permalink: /temp/
+---
+
+<div class="container">
+  <h1>Decoded Workpad Content</h1>
+  
+  <!-- Decoded Content Section -->
+  <div id="decodedContent" style="margin-top: 20px; display: none;">
+    <p><strong>Subject:</strong> <span id="decodedSubject"></span></p>
+    <p><strong>Start Date:</strong> <span id="decodedStart"></span></p>
+    <p><strong>Stop Date:</strong> <span id="decodedStop"></span></p>
+    <p><strong>Work:</strong></p>
+    <p id="decodedWork"></p>
+    <p><strong>Contacts:</strong></p>
+    <ul id="decodedContacts"></ul>
+    <p><strong>Notes:</strong></p>
+    <ul id="decodedNotes"></ul>
+    <p><strong>Tasks:</strong></p>
+    <ul id="decodedTasks"></ul>
+  </div>
+
+  <!-- Error Message Section -->
+  <div id="errorMessage" style="margin-top: 20px; display: none;">
+    <p style="color: red;">Failed to decode the content. Please check the URL or try again.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get('data');
+    const decodedContent = document.getElementById('decodedContent');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Decoded content elements
+    const decodedSubject = document.getElementById('decodedSubject');
+    const decodedStart = document.getElementById('decodedStart');
+    const decodedStop = document.getElementById('decodedStop');
+    const decodedWork = document.getElementById('decodedWork');
+    const decodedContacts = document.getElementById('decodedContacts');
+    const decodedNotes = document.getElementById('decodedNotes');
+    const decodedTasks = document.getElementById('decodedTasks');
+
+    try {
+      if (!encodedData) {
+        throw new Error('No data found in the URL.');
+      }
+
+      // Decode Base64 to binary
+      const binary = atob(encodedData);
+
+      // Decompress the binary data using pako
+      const decompressed = pako.inflate(binary, { to: 'string' });
+
+      // Parse the decompressed plain text into key-value pairs
+      const formData = {};
+      decompressed.split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        formData[key] = decodeURIComponent(value);
+      });
+
+      // Populate the decoded content
+      decodedSubject.textContent = formData.subject || 'N/A';
+      decodedStart.textContent = formData.start || 'N/A';
+      decodedStop.textContent = formData.stop || 'N/A';
+      decodedWork.textContent = formData.work || 'N/A';
+
+      // Populate the contacts list
+      if (formData.contact) {
+        formData.contact.split(',').forEach(contact => {
+          const li = document.createElement('li');
+          li.textContent = contact.trim();
+          decodedContacts.appendChild(li);
+        });
+      }
+
+      // Populate the notes list
+      if (formData.note) {
+        formData.note.split(',').forEach(note => {
+          const li = document.createElement('li');
+          li.textContent = note.trim();
+          decodedNotes.appendChild(li);
+        });
+      }
+
+      // Populate the tasks list
+      if (formData.task) {
+        formData.task.split(',').forEach(task => {
+          const li = document.createElement('li');
+          li.textContent = task.trim();
+          decodedTasks.appendChild(li);
+        });
+      }
+
+      // Show the decoded content
+      decodedContent.style.display = 'block';
+    } catch (error) {
+      console.error('Error decoding content:', error);
+      errorMessage.style.display = 'block';
+    }
+  });
+</script>
