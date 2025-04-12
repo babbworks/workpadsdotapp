@@ -1,6 +1,5 @@
 ---
 layout: default
-title: Temp
 permalink: /temp/
 ---
 
@@ -51,7 +50,7 @@ permalink: /temp/
       }
 
       // Decode Base64 to binary
-      const binary = atob(encodedData);
+      const binary = atob(decodeURIComponent(encodedData));
 
       // Decompress the binary data using pako
       const decompressed = pako.inflate(binary, { to: 'string' });
