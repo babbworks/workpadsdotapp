@@ -45,61 +45,63 @@ permalink: /temp/
     const decodedTasks = document.getElementById('decodedTasks');
 
     try {
-      if (!encodedData) {
-        throw new Error('No data found in the URL.');
-      }
+  if (!encodedData) {
+    throw new Error('No data found in the URL.');
+  }
 
-      // Decode Base64 to binary
-      const binary = atob(decodeURIComponent(encodedData));
+  // Decode Base64 to binary
+  const binary = atob(decodeURIComponent(encodedData));
 
-      // Decompress the binary data using pako
-      const decompressed = pako.inflate(binary, { to: 'string' });
+  // Decompress the binary data using pako
+  const decompressed = pako.inflate(binary, { to: 'string' });
 
-      // Parse the decompressed plain text into key-value pairs
-      const formData = {};
-      decompressed.split('&').forEach(pair => {
-        const [key, value] = pair.split('=');
-        formData[key] = decodeURIComponent(value);
-      });
+  // Log the decompressed data for debugging
+  console.log('Decompressed Data:', decompressed);
 
-      // Populate the decoded content
-      decodedSubject.textContent = formData.subject || 'N/A';
-      decodedStart.textContent = formData.start || 'N/A';
-      decodedStop.textContent = formData.stop || 'N/A';
-      decodedWork.textContent = formData.work || 'N/A';
-
-      // Populate the contacts list
-      if (formData.contact) {
-        formData.contact.split(',').forEach(contact => {
-          const li = document.createElement('li');
-          li.textContent = contact.trim();
-          decodedContacts.appendChild(li);
-        });
-      }
-
-      // Populate the notes list
-      if (formData.note) {
-        formData.note.split(',').forEach(note => {
-          const li = document.createElement('li');
-          li.textContent = note.trim();
-          decodedNotes.appendChild(li);
-        });
-      }
-
-      // Populate the tasks list
-      if (formData.task) {
-        formData.task.split(',').forEach(task => {
-          const li = document.createElement('li');
-          li.textContent = task.trim();
-          decodedTasks.appendChild(li);
-        });
-      }
-
-      // Show the decoded content
-      decodedContent.style.display = 'block';
-    } catch (error) {
-      console.error('Error decoding content:', error);
-      errorMessage.style.display = 'block';
-    }
+  // Parse the decompressed plain text into key-value pairs
+  const formData = {};
+  decompressed.split('&').forEach(pair => {
+    const [key, value] = pair.split('=');
+    formData[key] = decodeURIComponent(value);
   });
+
+  // Populate the decoded content
+  decodedSubject.textContent = formData.subject || 'N/A';
+  decodedStart.textContent = formData.start || 'N/A';
+  decodedStop.textContent = formData.stop || 'N/A';
+  decodedWork.textContent = formData.work || 'N/A';
+
+  // Populate the contacts list
+  if (formData.contact) {
+    formData.contact.split(',').forEach(contact => {
+      const li = document.createElement('li');
+      li.textContent = contact.trim();
+      decodedContacts.appendChild(li);
+    });
+  }
+
+  // Populate the notes list
+  if (formData.note) {
+    formData.note.split(',').forEach(note => {
+      const li = document.createElement('li');
+      li.textContent = note.trim();
+      decodedNotes.appendChild(li);
+    });
+  }
+
+  // Populate the tasks list
+  if (formData.task) {
+    formData.task.split(',').forEach(task => {
+      const li = document.createElement('li');
+      li.textContent = task.trim();
+      decodedTasks.appendChild(li);
+    });
+  }
+
+  // Show the decoded content
+  decodedContent.style.display = 'block';
+} catch (error) {
+  console.error('Error decoding content:', error);
+  errorMessage.style.display = 'block';
+});
 </script>

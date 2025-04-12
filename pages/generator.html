@@ -168,31 +168,34 @@ permalink: /new/
 
     // Function to compress and encode form data
     function compressAndEncodeFormData() {
-      const formData = new FormData(generatorForm);
-      const serializedData = [];
+  const formData = new FormData(generatorForm);
+  const serializedData = [];
 
-      // Serialize form data into key=value pairs
-      formData.forEach((value, key) => {
-        serializedData.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-      });
+  // Serialize form data into key=value pairs
+  formData.forEach((value, key) => {
+    serializedData.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+  });
 
-      // Join serialized data with '&'
-      const plainTextData = serializedData.join('&');
+  // Join serialized data with '&'
+  const plainTextData = serializedData.join('&');
 
-      // Compress the plain text data using pako
-      const compressed = pako.deflate(plainTextData, { to: 'string' });
+  // Compress the plain text data using pako
+  const compressed = pako.deflate(plainTextData, { to: 'string' });
 
-      // Encode the compressed data in Base64
-      return btoa(compressed);
-    }
+  // Encode the compressed data in Base64
+  return btoa(compressed);
+}
 
     // Event listener for generating the link
     generateUnencryptedBtn.addEventListener('click', function() {
-      const compressedData = compressAndEncodeFormData();
+  const compressedData = compressAndEncodeFormData();
 
-      // Redirect to template.html with the compressed data as a query parameter
-      window.location.href = `/temp/?data=${encodeURIComponent(compressedData)}`;
-    });
+  // Log the compressed data for debugging
+  console.log('Encoded Data:', compressedData);
+
+  // Redirect to temp.html with the compressed data as a query parameter
+  window.location.href = `/temp/?data=${encodeURIComponent(compressedData)}`;
+});
 
     // Add Contact
     addLocationBtn.addEventListener('click', function() {
