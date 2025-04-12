@@ -41,9 +41,9 @@ permalink: /new/
 
   /* Button styling */
   .btn {
-    width: 95%; /* Full width within the form wrapper */
+    width: 100%; /* Full width within the form wrapper */
     border-radius: 4px;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem;
     font-size: 1rem;
     margin-top: 0.5rem; /* Add spacing above buttons */
     transition: background-color 0.3s ease, transform 0.2s ease;
@@ -62,12 +62,13 @@ permalink: /new/
   /* Styling for the output list */
   .list-group {
     display: none; /* Initially hidden */
+    width: 100%; /* Full width within the form wrapper */
     border: 1px solid black; /* Thin black border around the output */
     border-radius: 4px;
     padding: 0.5rem;
     margin-top: 0.5rem;
     list-style-position: inside; /* Ensure the bullet points are inside the border */
-    width: 95%; /* Align with the input boxes and buttons */
+    width: 90%; /* Align with the input boxes and buttons */
   }
 
   .list-group-item {
@@ -153,19 +154,33 @@ permalink: /new/
     const generatorForm = document.getElementById('generatorForm');
     const generateUnencryptedBtn = document.getElementById('generateUnencryptedBtn');
 
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    const contactInput = document.getElementById('contact');
+    const locationsList = document.getElementById('locationsList');
+
+    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
+    const noteInput = document.getElementById('noteInput');
+    const specialNotesList = document.getElementById('specialNotesList');
+
+    const addActionBtn = document.getElementById('addActionBtn');
+    const taskInput = document.getElementById('taskInput');
+    const actionsList = document.getElementById('actionsList');
+
     // Function to compress and encode form data
     function compressAndEncodeFormData() {
       const formData = new FormData(generatorForm);
-      const data = {};
+      const serializedData = [];
+
+      // Serialize form data into key=value pairs
       formData.forEach((value, key) => {
-        data[key] = value;
+        serializedData.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
       });
 
-      // Convert data to JSON string
-      const jsonString = JSON.stringify(data);
+      // Join serialized data with '&'
+      const plainTextData = serializedData.join('&');
 
-      // Compress the JSON string using pako
-      const compressed = pako.deflate(jsonString, { to: 'string' });
+      // Compress the plain text data using pako
+      const compressed = pako.deflate(plainTextData, { to: 'string' });
 
       // Encode the compressed data in Base64
       return btoa(compressed);
@@ -177,6 +192,42 @@ permalink: /new/
 
       // Redirect to template.html with the compressed data as a query parameter
       window.location.href = `/template.html?data=${encodeURIComponent(compressedData)}`;
+    });
+
+    // Add Contact
+    addLocationBtn.addEventListener('click', function() {
+      if (contactInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = contactInput.value;
+        li.className = 'list-group-item';
+        locationsList.appendChild(li);
+        locationsList.style.display = 'block'; // Show the black box
+        contactInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Note
+    addSpecialNoteBtn.addEventListener('click', function() {
+      if (noteInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = noteInput.value;
+        li.className = 'list-group-item';
+        specialNotesList.appendChild(li);
+        specialNotesList.style.display = 'block'; // Show the black box
+        noteInput.value = ''; // Clear the input field
+      }
+    });
+
+    // Add Task
+    addActionBtn.addEventListener('click', function() {
+      if (taskInput.value.trim()) {
+        const li = document.createElement('li');
+        li.textContent = taskInput.value;
+        li.className = 'list-group-item';
+        actionsList.appendChild(li);
+        actionsList.style.display = 'block'; // Show the black box
+        taskInput.value = ''; // Clear the input field
+      }
     });
   });
 </script>
