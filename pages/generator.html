@@ -100,7 +100,7 @@ permalink: /new/
     <p>A workpad is a link, <a href="https://workpads.org/how">no storage needed</a>.</p>  
     <hr><br>
     <p><b>A1:Basic</b></p>
-    <form id="generatorForm" class="worker-form">
+    <form id="generatorForm" class="workpad">
       <div class="form-group">
         <input type="text" id="subject" class="form-control" placeholder="Subject">
       </div>
@@ -119,30 +119,30 @@ permalink: /new/
 
       <div class="form-group">
         <input type="text" id="contact" class="form-control" placeholder="Name, Phone, Email, Messaging">
-        <button type="button" id="addLocationBtn" class="btn btn-secondary">➕</button>
-        <ul id="locationsList" class="list-group mt-2"></ul>
+        <button type="button" id="addContactBtn" class="secondaryBtn">➕</button>
+        <ul id="contactList" class="list-group mt-2"></ul>
       </div>
 
       <div class="form-group">
         <textarea id="noteInput" class="form-control" rows="5" placeholder="Note"></textarea>
-        <button type="button" id="addSpecialNoteBtn" class="btn btn-secondary">➕ </button>
-        <ul id="specialNotesList" class="list-group mt-2"></ul>
+        <button type="button" id="addNoteBtn" class="secondaryBtn">➕ </button>
+        <ul id="notesList" class="list-group mt-2"></ul>
       </div>
 
       <div class="form-group">
         <textarea id="taskInput" class="form-control" rows="5" placeholder="Task"></textarea>
-        <button type="button" id="addActionBtn" class="btn btn-secondary">➕</button>
-        <ul id="actionsList" class="list-group mt-2"></ul>
+        <button type="button" id="taskBtn" class="secondaryBtn">➕</button>
+        <ul id="notesList" class="list-group mt-2"></ul>
       </div>
     
       <hr class="my-4">
       <br>
       <p>
-        <button type="button" id="generateUnencryptedBtn" class="btn btn-secondary">Generate Link</button>
+        <button type="button" id="generateUnencryptedBtn" class="secondaryBtn">Generate Link</button>
       </p>
       <div class="form-group">
         <input type="text" id="encryptionKey" class="form-control" placeholder="Passphrase">
-        <button type="button" id="generateEncryptedBtn" class="btn btn-primary">Generate Encrypted Link</button>
+        <button type="button" id="generateEncryptedBtn" class="primaryBtn">Generate Encrypted Link</button>
       </div>
     </form>
   </div>
@@ -154,17 +154,17 @@ permalink: /new/
     const generatorForm = document.getElementById('generatorForm');
     const generateUnencryptedBtn = document.getElementById('generateUnencryptedBtn');
 
-    const addLocationBtn = document.getElementById('addLocationBtn');
+    const addContactBtn = document.getElementById('addContactBtn');
     const contactInput = document.getElementById('contact');
-    const locationsList = document.getElementById('locationsList');
+    const contactList = document.getElementById('contacteList');
 
-    const addSpecialNoteBtn = document.getElementById('addSpecialNoteBtn');
+    const addNoteBtn = document.getElementById('addNoteBtn');
     const noteInput = document.getElementById('noteInput');
-    const specialNotesList = document.getElementById('specialNotesList');
+    const notesList = document.getElementById('notesList');
 
-    const addActionBtn = document.getElementById('addActionBtn');
+    const addTaskBtn = document.getElementById('addTaskBtn');
     const taskInput = document.getElementById('taskInput');
-    const actionsList = document.getElementById('actionsList');
+    const taskList = document.getElementById('taskList');
 
     // Function to compress and encode form data
     function compressAndEncodeFormData() {
@@ -190,15 +190,12 @@ permalink: /new/
     generateUnencryptedBtn.addEventListener('click', function() {
   const compressedData = compressAndEncodeFormData();
 
-  // Log the compressed data for debugging
-  console.log('Encoded Data:', compressedData);
-
   // Redirect to temp.html with the compressed data as a query parameter
   window.location.href = `/temp/?data=${encodeURIComponent(compressedData)}`;
 });
 
     // Add Contact
-    addLocationBtn.addEventListener('click', function() {
+    addContactBtn.addEventListener('click', function() {
       if (contactInput.value.trim()) {
         const li = document.createElement('li');
         li.textContent = contactInput.value;
@@ -210,7 +207,7 @@ permalink: /new/
     });
 
     // Add Note
-    addSpecialNoteBtn.addEventListener('click', function() {
+    addNoteBtn.addEventListener('click', function() {
       if (noteInput.value.trim()) {
         const li = document.createElement('li');
         li.textContent = noteInput.value;
@@ -222,7 +219,7 @@ permalink: /new/
     });
 
     // Add Task
-    addActionBtn.addEventListener('click', function() {
+    addTaskBtn.addEventListener('click', function() {
       if (taskInput.value.trim()) {
         const li = document.createElement('li');
         li.textContent = taskInput.value;

@@ -55,9 +55,6 @@ permalink: /temp/
   // Decompress the binary data using pako
   const decompressed = pako.inflate(binary, { to: 'string' });
 
-  // Log the decompressed data for debugging
-  console.log('Decompressed Data:', decompressed);
-
   // Parse the decompressed plain text into key-value pairs
   const formData = {};
   decompressed.split('&').forEach(pair => {
