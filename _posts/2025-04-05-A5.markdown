@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "A5: Basic Project"
-categories: pads projects
+title:  "Basic Workpad 1"
+categories: pads demos
 ---
 <style>
   /* Make placeholder text black */
