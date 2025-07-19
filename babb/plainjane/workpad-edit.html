@@ -4,160 +4,288 @@ title: Edit Workpad
 permalink: /babb/plainjane/workpad-edit
 ---
 
-<div class="workpad-edit-container">
-  <h1>New Workpad</h1>
-  <form id="workpad-form">
-
-    <fieldset>
-      <legend>PROCESS</legend>
-      <label>Customer Name: <input type="text" id="customerName" required></label>
-      <label>Date of Work: <input type="date" id="date"></label>
-      <label>Start Time: <input type="time" id="startTime"></label>
-      <label>End Time: <input type="time" id="endTime"></label>
-      <label>Location: <input type="text" id="location"></label>
-      <label>Meeting Spot: <input type="text" id="meetingSpot"></label>
-      <label>Meeting Location: <input type="text" id="meetingLocation"></label>
-    </fieldset>
-
-    <fieldset>
-      <legend>WORK ACTIONS (up to 10)</legend>
-      <div id="actions-list"></div>
-      <button type="button" id="add-action-btn">+ Add Action</button>
-    </fieldset>
-
-    <fieldset>
-      <legend>DETAILS OF WORK</legend>
-      <textarea id="details" rows="4" placeholder="Add details here..."></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>STORY OF WORK</legend>
-      <textarea id="story" rows="4" placeholder="Narrative summary..."></textarea>
-    </fieldset>
-
-    <button type="submit">Save Workpad</button>
-  </form>
-</div>
-
-<style>
-  .workpad-edit-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 1rem;
-  }
-
-  form label {
-    display: block;
-    margin-bottom: 0.75rem;
-  }
-
-  input[type="text"],
-  input[type="date"],
-  input[type="time"],
-  textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    box-sizing: border-box;
-  }
-
-  fieldset {
-    border: 1px solid #ccc;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: 6px;
-  }
-
-  textarea {
-    resize: vertical;
-  }
-
-  #add-action-btn {
-    margin-top: 0.5rem;
-  }
-
-  button[type="submit"] {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-</style>
-<script>
-  const form = document.getElementById('workpad-form');
-  const actionsList = document.getElementById('actions-list');
-  const addActionBtn = document.getElementById('add-action-btn');
-
-  let actions = [];
-  let editingId = null;
-
-  // Parse URL param ?id=
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('id');
-  const storedWorkpads = JSON.parse(localStorage.getItem('workpads') || '[]');
-
-  function renderActions() {
-    actionsList.innerHTML = '';
-    actions.forEach((action, index) => {
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = `
-        <label>Action Title: <input type="text" value="${action.title || ''}" data-index="${index}" data-field="title"></label>
-        <label>Action Notes: <textarea rows="2" data-index="${index}" data-field="notes">${action.notes || ''}</textarea></label>
-      `;
-      actionsList.appendChild(wrapper);
-    });
-  }
-
-  addActionBtn.onclick = () => {
-    if (actions.length < 10) {
-      actions.push({ title: '', notes: '' });
-      renderActions();
-    } else {
-      alert("Maximum of 10 actions allowed.");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Workpad</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
-  };
 
-  actionsList.addEventListener('input', (e) => {
-    const index = e.target.dataset.index;
-    const field = e.target.dataset.field;
-    actions[index][field] = e.target.value;
-  });
+    h1 {
+      margin-bottom: 1.5rem;
+    }
 
-  // Load existing workpad if editing
-  if (idParam !== null && storedWorkpads[idParam]) {
-    editingId = Number(idParam);
-    const pad = storedWorkpads[editingId];
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
 
-    document.getElementById('customerName').value = pad.customerName || '';
-    document.getElementById('date').value = pad.date || '';
-    document.getElementById('startTime').value = pad.startTime || '';
-    document.getElementById('endTime').value = pad.endTime || '';
-    document.getElementById('location').value = pad.location || '';
-    document.getElementById('meetingSpot').value = pad.meetingSpot || '';
-    document.getElementById('meetingLocation').value = pad.meetingLocation || '';
-    document.getElementById('details').value = pad.details || '';
-    document.getElementById('story').value = pad.story || '';
-    actions = pad.actions && pad.actions.length ? pad.actions : [];
-    renderActions();
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
 
-    // Change heading and submit button text
-    document.querySelector('h1').textContent = 'Edit Workpad';
-    form.querySelector('button[type="submit"]').textContent = 'Update Workpad';
-  } else {
-    // New workpad defaults
-    actions = [];
-    renderActions();
-  }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
 
-  form.onsubmit = (e) => {
-    e.preventDefault();
+    .button-row {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-start;
+    }
 
-    const workpad = {
-      customerName: document.getElementById('customerName').value,
-      date: document.getElementById('date').value,
-      startTime: document.getElementById('startTime').value,
-      endTime: document.getElementById('endT
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      background-color: #007acc;
+      transition: background-color 0.2s ease;
+    }
 
+    button:hover {
+      background-color: #005a99;
+    }
+
+    button.cancel {
+      background-color: #6c757d;
+    }
+
+    button.cancel:hover {
+      background-color: #565e64;
+    }
+
+    /* Actions section styles */
+    #actions-container {
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .action-item {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      background-color: #fff;
+    }
+
+    .action-item input[type="text"] {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .remove-action-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 0.3rem 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    .remove-action-btn:hover {
+      background-color: #a71d2a;
+    }
+
+    #add-action-btn {
+      margin-top: 0.5rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    #add-action-btn:hover {
+      background-color: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="page-title">New Workpad</h1>
+
+  <form id="workpad-form">
+    <label for="process">Customer Name</label>
+    <input type="text" id="process" name="process" placeholder="Customer or Process name" />
+
+    <label for="date">Date</label>
+    <input type="date" id="date" name="date" />
+
+    <label for="location">Meeting Location</label>
+    <input type="text" id="location" name="location" placeholder="Meeting location" />
+
+    <label for="meetingTime">Meeting Time</label>
+    <input type="text" id="meetingTime" name="meetingTime" placeholder="e.g. 10:00 AM" />
+
+    <label>Actions</label>
+    <div id="actions-container"></div>
+    <button type="button" id="add-action-btn" aria-label="Add new action">+ Add Action</button>
+
+    <label for="details">Details</label>
+    <textarea id="details" name="details" placeholder="Additional details"></textarea>
+
+    <label for="story">Story</label>
+    <textarea id="story" name="story" placeholder="Narrative or story"></textarea>
+
+    <div class="button-row">
+      <button type="submit">Save Workpad</button>
+      <button type="button" class="cancel" id="cancel-btn">Cancel</button>
+    </div>
+  </form>
+
+  <script>
+    (function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const index = urlParams.get('id');
+      const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
+
+      const pageTitle = document.getElementById('page-title');
+      const form = document.getElementById('workpad-form');
+
+      // Form inputs
+      const processInput = document.getElementById('process');
+      const dateInput = document.getElementById('date');
+      const locationInput = document.getElementById('location');
+      const meetingTimeInput = document.getElementById('meetingTime');
+      const detailsInput = document.getElementById('details');
+      const storyInput = document.getElementById('story');
+
+      const actionsContainer = document.getElementById('actions-container');
+      const addActionBtn = document.getElementById('add-action-btn');
+
+      let actions = [];
+
+      // Render all actions inputs dynamically
+      function renderActions() {
+        actionsContainer.innerHTML = '';
+        actions.forEach((action, idx) => {
+          const actionDiv = document.createElement('div');
+          actionDiv.className = 'action-item';
+
+          actionDiv.innerHTML = `
+            <input type="text" placeholder="Action title" value="${action.title || ''}" class="action-title" data-index="${idx}" />
+            <input type="text" placeholder="Action notes" value="${action.notes || ''}" class="action-notes" data-index="${idx}" />
+            <button type="button" class="remove-action-btn" data-index="${idx}" aria-label="Remove action">🗑️ Remove</button>
+          `;
+
+          actionsContainer.appendChild(actionDiv);
+        });
+
+        // Attach event listeners to inputs and remove buttons
+        document.querySelectorAll('.action-title').forEach(input => {
+          input.addEventListener('input', (e) => {
+            const idx = e.target.dataset.index;
+            actions[idx].title = e.target.value;
+          });
+        });
+
+        document.querySelectorAll('.action-notes').forEach(input => {
+          input.addEventListener('input', (e) => {
+            const idx = e.target.dataset.index;
+            actions[idx].notes = e.target.value;
+          });
+        });
+
+        document.querySelectorAll('.remove-action-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = e.target.dataset.index;
+            actions.splice(idx, 1);
+            renderActions();
+          });
+        });
+      }
+
+      // Add new blank action
+      addActionBtn.addEventListener('click', () => {
+        actions.push({ title: '', notes: '' });
+        renderActions();
+      });
+
+      // If editing existing workpad, load its data
+      if (index !== null && workpads[index]) {
+        pageTitle.textContent = 'Edit Workpad';
+        const pad = workpads[index];
+        processInput.value = pad.process || pad.customerName || '';
+        dateInput.value = pad.date || '';
+        locationInput.value = pad.location || '';
+        meetingTimeInput.value = pad.meetingTime || '';
+        actions = Array.isArray(pad.actions) ? pad.actions : [];
+        detailsInput.value = pad.details || '';
+        storyInput.value = pad.story || '';
+      } else {
+        pageTitle.textContent = 'New Workpad';
+        actions = [];
+      }
+
+      renderActions();
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newPad = {
+          process: processInput.value.trim(),
+          customerName: processInput.value.trim(), // for backward compatibility
+          date: dateInput.value,
+          location: locationInput.value.trim(),
+          meetingTime: meetingTimeInput.value.trim(),
+          actions: actions,
+          details: detailsInput.value.trim(),
+          story: storyInput.value.trim(),
+        };
+
+        if (index !== null && workpads[index]) {
+          workpads[index] = newPad;
+        } else {
+          workpads.push(newPad);
+        }
+
+        localStorage.setItem('workpads', JSON.stringify(workpads));
+
+        // Redirect to the listing page after save
+        window.location.href = '/babb/plainjane/workpads';
+      });
+
+      document.getElementById('cancel-btn').addEventListener('click', () => {
+        window.location.href = '/babb/plainjane/workpads';
+      });
+    })();
+  </script>
+</body>
+</html>

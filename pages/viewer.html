@@ -1,64 +1,369 @@
 ---
 layout: default
-title: by Babb
-permalink: /view/
+title: Workpad Viewer
+permalink: /viewer.html
 ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workpad Viewer</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
 
-<div class="container">
-  <h1>Content Viewer</h1>
-  
-  <div class="form-group">
-    <label for="encodedString">Paste Encoded String:</label>
-    <textarea id="encodedString" class="form-control" rows="4"></textarea>
-    <button type="button" id="decodeBtn" class="btn btn-primary mt-2">Decode Content</button>
-  </div>
-  
-  <div id="contentView" style="margin-top: 20px; display: none;">
-    <h2 id="viewTitle"></h2>
-    <p id="viewDate"></p>
-    <div id="viewSummary"></div>
-  </div>
-</div>
+    h2 {
+      margin-bottom: 0.5rem;
+    }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const decodeBtn = document.getElementById('decodeBtn');
-    const contentView = document.getElementById('contentView');
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section h3 {
+      font-size: 1.1rem;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .section p {
+      margin: 0.25rem 0;
+    }
+
+    .action-item {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      background-color: #fff;
+    }
+
+    .comment {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+
+    .viewer-header {
+      background: #e3f2fd;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .viewer-header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.5rem;
+      color: #1976d2;
+    }
+
+    .viewer-header p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .timestamp {
+      font-size: 0.8rem;
+      color: #999;
+      text-align: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #ddd;
+    }
+
+    /* Button container for download */
+    .button-container {
+      margin: 0.5rem 0 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #download-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #download-btn:hover {
+      background-color: #1e7e34;
+    }
+
+    /* Export target styling */
+    #jpeg-export {
+      display: none;
+      width: 375px;
+      padding: 24px;
+      background-color: #fff;
+      color: #000;
+      font-family: system-ui, sans-serif;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    #jpeg-export h2 {
+      font-size: 1.2rem;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+
+    #jpeg-export .section {
+      margin-bottom: 1.25rem;
+    }
+
+    #jpeg-export .section p {
+      font-size: 0.95rem;
+      margin: 0.4rem 0;
+      white-space: pre-wrap;
+    }
+
+    #jpeg-export .action-item {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    #jpeg-export hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-header">
+    <h1>📋 Workpad Viewer</h1>
+    <p>Viewing shared workpad</p>
+  </div>
+
+  <div id="workpad-container">
+    <h2 id="workpad-title">Loading...</h2>
     
-    decodeBtn.addEventListener('click', function() {
-      const encodedString = document.getElementById('encodedString').value.trim();
-      
-      if (!encodedString) {
-        alert('Please paste an encoded string');
-        return;
-      }
-      
+    <div class="button-container">
+      <button id="download-btn" style="display: none;">Download Image</button>
+    </div>
+
+    <div class="section" id="header-section" style="display: none;">
+      <h3>Header</h3>
+      <p><strong>Customer:</strong> <span id="customerName"></span></p>
+      <p><strong>Date:</strong> <span id="date"></span></p>
+      <p><strong>Time:</strong> <span id="meetingTime"></span></p>
+      <p><strong>Location:</strong> <span id="location"></span></p>
+    </div>
+
+    <div class="section" id="actions-section" style="display: none;">
+      <h3>Actions</h3>
+      <div id="actions-list"></div>
+    </div>
+
+    <div class="section" id="details-section" style="display: none;">
+      <h3>Details</h3>
+      <p id="details"></p>
+    </div>
+
+    <div class="section" id="story-section" style="display: none;">
+      <h3>Story</h3>
+      <p id="story"></p>
+    </div>
+
+    <div class="section" id="comments-section" style="display: none;">
+      <h3>Comments</h3>
+      <div id="comments"></div>
+    </div>
+
+    <div class="timestamp" id="timestamp" style="display: none;"></div>
+  </div>
+
+  <!-- Image export container -->
+  <div id="jpeg-export"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // Decompression utility function
+    function decompress(str) {
       try {
-        // Convert base64 to binary
-        const binary = atob(encodedString);
-        
-        // Convert to Uint8Array
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
-        }
-        
-        // Decompress with pako
-        const decompressed = pako.inflate(bytes, { to: 'string' });
-        
-        // Parse JSON
-        const data = JSON.parse(decompressed);
-        
-        // Display data
-        document.getElementById('viewTitle').textContent = data.title;
-        document.getElementById('viewDate').textContent = new Date(data.date).toLocaleDateString();
-        document.getElementById('viewSummary').textContent = data.summary;
-        
-        contentView.style.display = 'block';
-      } catch (error) {
-        alert('Error decoding the string: ' + error.message);
+        return decodeURIComponent(escape(atob(str)));
+      } catch (e) {
+        return atob(str);
       }
-    });
-  });
-</script>
+    }
+
+    function showError(message) {
+      document.getElementById('workpad-container').innerHTML = `
+        <div class="error-message">
+          <h3>Error Loading Workpad</h3>
+          <p>${message}</p>
+          <p>Please check the URL and try again.</p>
+        </div>
+      `;
+    }
+
+    function displayWorkpad(data) {
+      try {
+        // Set title
+        document.getElementById('workpad-title').textContent = data.title || 'Untitled Workpad';
+        document.title = `${data.title || 'Workpad'} - Workpad Viewer`;
+
+        // Set header information
+        document.getElementById('customerName').textContent = data.customer || 'N/A';
+        document.getElementById('date').textContent = data.date || 'N/A';
+        document.getElementById('location').textContent = data.location || 'N/A';
+        document.getElementById('meetingTime').textContent = data.time || 'N/A';
+        
+        // Set details and story
+        document.getElementById('details').textContent = data.details || 'None';
+        document.getElementById('story').textContent = data.story || 'None';
+
+        // Display actions
+        const actionsList = document.getElementById('actions-list');
+        if (Array.isArray(data.actions) && data.actions.length > 0) {
+          data.actions.forEach(action => {
+            const div = document.createElement('div');
+            div.className = 'action-item';
+            div.innerHTML = `
+              <p><strong>${action.title || '(Untitled Action)'}</strong></p>
+              <p>${action.notes || ''}</p>
+            `;
+            actionsList.appendChild(div);
+          });
+        } else {
+          actionsList.innerHTML = '<p>No actions recorded.</p>';
+        }
+
+        // Display comments
+        const commentsContainer = document.getElementById('comments');
+        if (Array.isArray(data.comments) && data.comments.length > 0) {
+          data.comments.forEach(comment => {
+            const div = document.createElement('div');
+            div.className = 'comment';
+            div.textContent = comment;
+            commentsContainer.appendChild(div);
+          });
+        } else {
+          commentsContainer.innerHTML = '<p>No comments.</p>';
+        }
+
+        // Show timestamp
+        if (data.timestamp) {
+          const timestampEl = document.getElementById('timestamp');
+          const date = new Date(data.timestamp);
+          timestampEl.textContent = `Shared on ${date.toLocaleString()}`;
+          timestampEl.style.display = 'block';
+        }
+
+        // Show all sections
+        document.getElementById('header-section').style.display = 'block';
+        document.getElementById('actions-section').style.display = 'block';
+        document.getElementById('details-section').style.display = 'block';
+        document.getElementById('story-section').style.display = 'block';
+        document.getElementById('comments-section').style.display = 'block';
+        document.getElementById('download-btn').style.display = 'inline-block';
+
+        // Setup download functionality
+        setupDownload(data);
+
+      } catch (error) {
+        console.error('Error displaying workpad:', error);
+        showError('Failed to display workpad data. The data may be corrupted.');
+      }
+    }
+
+    function setupDownload(data) {
+      document.getElementById('download-btn').addEventListener('click', () => {
+        const exportBox = document.getElementById('jpeg-export');
+        exportBox.innerHTML = `
+          <h2>${data.title || 'Untitled Workpad'}</h2>
+          <div class="section">
+            <b>DATE</b><br> ${data.date || ''}<hr>
+            <b>MEETING TIME</b><br> ${data.time || ''}<hr>
+            <b>MEETING LOCATION</b><br>${data.location || ''}<hr>
+          </div>
+          <div class="section">
+            <b>ACTIONS</b><hr>
+            ${(data.actions || []).map(action => `
+              <div class="action-item">
+                <p><strong>${action.title || ''}</strong></p>
+                <p>${action.notes || ''}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="section">
+          <b>DETAILS</b><br>
+            <p>${data.details || ''}</p>
+          </div>
+          <div class="section">
+          <b>STORY</b><br>
+            <p>${data.story || ''}</p>
+          </div>
+        `;
+        exportBox.style.display = 'block';
+
+        html2canvas(exportBox, {
+          scale: 3,
+          width: 375,
+          backgroundColor: '#fff'
+        }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = `${data.title || 'workpad'}.jpg`;
+          link.href = canvas.toDataURL('image/jpeg');
+          link.click();
+          exportBox.style.display = 'none';
+        }).catch(error => {
+          console.error('Error generating image:', error);
+          alert('Error generating image download.');
+          exportBox.style.display = 'none';
+        });
+      });
+    }
+
+    // Main execution
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const compressedData = urlParams.get('d');
+
+      if (!compressedData) {
+        showError('No workpad data found in URL. Please check the share link.');
+      } else {
+        // Decompress and parse the data
+        const decompressed = decompress(decodeURIComponent(compressedData));
+        const workpadData = JSON.parse(decompressed);
+        
+        displayWorkpad(workpadData);
+      }
+    } catch (error) {
+      console.error('Error loading workpad:', error);
+      showError('Failed to load workpad data. The share link may be invalid or corrupted.');
+    }
+  </script>
+</body>
+</html>

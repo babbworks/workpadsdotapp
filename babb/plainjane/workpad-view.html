@@ -3,163 +3,473 @@ layout: default
 title: View Workpad
 permalink: /babb/plainjane/workpad-view
 ---
-<style>
-  .workpad-view-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 1rem;
-    font-family: system-ui, sans-serif;
-  }
 
-  .workpad-block {
-    border: 1px solid #ddd;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: 8px;
-    background-color: #fdfdfd;
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Workpad</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
 
-  .workpad-block h2 {
-    margin-top: 0;
-    font-size: 1.2rem;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 0.25rem;
-  }
+    h2 {
+      margin-bottom: 0.5rem;
+    }
 
-  ul {
-    padding-left: 1.2rem;
-  }
+    .section {
+      margin-bottom: 1.5rem;
+    }
 
-  .button-group {
-    margin-top: 2rem;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
+    .section h3 {
+      font-size: 1.1rem;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+    }
 
-  .button-group button {
-    flex: 1 1 120px;
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-  }
+    .section p {
+      margin: 0.25rem 0;
+    }
 
-  .button-group button:focus-visible {
-    outline: 3px solid #005fcc;
-    outline-offset: 2px;
-  }
+    .action-item {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      background-color: #fff;
+    }
 
-  .button-group button#edit-btn {
-    background-color: #007bff;
-    color: white;
-  }
+    .comment-box {
+      margin-top: 1rem;
+    }
 
-  .button-group button#edit-btn:hover {
-    background-color: #0056b3;
-    box-shadow: 0 4px 8px rgb(0 123 255 / 0.3);
-  }
+    .comment-box textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font-family: inherit;
+      resize: vertical;
+    }
 
-  .button-group button#delete-btn {
-    background-color: #dc3545;
-    color: white;
-  }
+    .comment-box button {
+      margin-top: 0.5rem;
+      background-color: #007acc;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-  .button-group button#delete-btn:hover {
-    background-color: #a71d2a;
-    box-shadow: 0 4px 8px rgb(220 53 69 / 0.4);
-  }
+    .comment-box button:hover {
+      background-color: #005a99;
+    }
 
-  .button-group button[onclick] {
-    background-color: #6c757d;
-    color: white;
-  }
+    .comment {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+    }
 
-  .button-group button[onclick]:hover {
-    background-color: #565e64;
-  }
-</style>
+    .back-link {
+      display: block;
+      margin: 2rem auto 0;
+      text-align: center;
+      color: #0066cc;
+      text-decoration: underline;
+    }
 
-<div class="workpad-view-container">
-  <h1>Workpad</h1>
-  <div id="workpad-content"></div>
+    /* Button container for download and share */
+    .button-container {
+      margin: 0.5rem 0 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
 
-  <div class="button-group">
-    <button onclick="window.location.href='workpads.html'">← Back to List</button>
-    <button id="edit-btn">✏️ Edit</button>
-    <button id="delete-btn">🗑️ Delete</button>
+    #download-btn, #share-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #download-btn:hover {
+      background-color: #1e7e34;
+    }
+
+    #share-btn {
+      background-color: #007acc;
+    }
+
+    #share-btn:hover {
+      background-color: #005a99;
+    }
+
+    #share-btn.generating {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    /* Share link display */
+    .share-section {
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: #e9f7ef;
+      border: 1px solid #28a745;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .share-section.active {
+      display: block;
+    }
+
+    .share-link {
+      background: white;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+
+    .copy-btn {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .copy-btn:hover {
+      background: #138496;
+    }
+
+    .copy-btn.copied {
+      background: #28a745;
+    }
+
+    .share-stats {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    /* ✅ Updated export target styling */
+    #jpeg-export {
+      display: none;
+      width: 375px;
+      padding: 24px;
+      background-color: #fff;
+      color: #000;
+      font-family: system-ui, sans-serif;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    #jpeg-export h2 {
+      font-size: 1.2rem;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+
+    #jpeg-export .section {
+      margin-bottom: 1.25rem;
+    }
+
+    #jpeg-export .section p {
+      font-size: 0.95rem;
+      margin: 0.4rem 0;
+      white-space: pre-wrap;
+    }
+
+    #jpeg-export .action-item {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    #jpeg-export hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="workpad-container">
+    <h2 id="workpad-title">Workpad</h2>
+    
+    <div class="button-container">
+      <button id="download-btn">Download Image</button>
+      <button id="share-btn">Generate Share Link</button>
+    </div>
+
+    <div id="share-section" class="share-section">
+      <h4>Share this workpad</h4>
+      <div class="share-link" id="share-link"></div>
+      <button class="copy-btn" id="copy-btn">Copy Link</button>
+      <div class="share-stats" id="share-stats"></div>
+    </div>
+
+    <div class="section" id="header-section">
+      <h3>Header</h3>
+      <p><strong>Customer:</strong> <span id="customerName"></span></p>
+      <p><strong>Date:</strong> <span id="date"></span></p>
+      <p><strong>Time:</strong> <span id="meetingTime"></span></p>
+      <p><strong>Location:</strong> <span id="location"></span></p>
+    </div>
+
+    <div class="section" id="actions-section">
+      <h3>Actions</h3>
+      <div id="actions-list"></div>
+    </div>
+
+    <div class="section" id="details-section">
+      <h3>Details</h3>
+      <p id="details"></p>
+    </div>
+
+    <div class="section" id="story-section">
+      <h3>Story</h3>
+      <p id="story"></p>
+    </div>
+
+    <div class="section" id="comments-section">
+      <h3>Comments</h3>
+      <div id="comments"></div>
+      <div class="comment-box">
+        <textarea id="new-comment" placeholder="Leave a comment..."></textarea>
+        <button id="add-comment">Add Comment</button>
+      </div>
+    </div>
+
+    <a class="back-link" href="/babb/plainjane/workpads">← Back to Workpads</a>
   </div>
-</div>
 
-<script>
-  const content = document.getElementById('workpad-content');
-  const params = new URLSearchParams(window.location.search);
-  const id = parseInt(params.get('id'), 10);
+  <!-- Image export container -->
+  <div id="jpeg-export"></div>
 
-  const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
-  const pad = workpads[id];
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const workpadId = urlParams.get('id');
+    const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
 
-  if (!pad) {
-    content.innerHTML = '<p>Workpad not found.</p>';
-  } else {
-    content.innerHTML = `
-      <div class="workpad-block">
-        <h2>Header</h2>
-        <p><strong>Customer:</strong> ${pad.customerName || '(none)'}</p>
-        <p><strong>Date:</strong> ${pad.date || '(none)'}</p>
-        <p><strong>Start Time:</strong> ${pad.startTime || '(none)'}</p>
-        <p><strong>End Time:</strong> ${pad.endTime || '(none)'}</p>
-        <p><strong>Location:</strong> ${pad.location || '(none)'}</p>
-        <p><strong>Meeting Spot:</strong> ${pad.meetingSpot || '(none)'}</p>
-        <p><strong>Meeting Location:</strong> ${pad.meetingLocation || '(none)'}</p>
-      </div>
-
-      <div class="workpad-block">
-        <h2>Actions</h2>
-        ${pad.actions && pad.actions.length ? `
-          <ul>
-            ${pad.actions.map(a => `
-              <li>
-                <strong>${a.title || '(no title)'}</strong><br>
-                <span>${a.notes || '(no notes)'}</span>
-              </li>`).join('')}
-          </ul>
-        ` : '<p>No actions recorded.</p>'}
-      </div>
-
-      <div class="workpad-block">
-        <h2>Details</h2>
-        <p>${pad.details || '(none)'}</p>
-      </div>
-
-      <div class="workpad-block">
-        <h2>Story</h2>
-        <p>${pad.story || '(none)'}</p>
-      </div>
-    `;
-  }
-
-  const editBtn = document.getElementById('edit-btn');
-  const deleteBtn = document.getElementById('delete-btn');
-
-  if (!pad) {
-    editBtn.style.display = 'none';
-    deleteBtn.style.display = 'none';
-  } else {
-    editBtn.onclick = () => {
-      window.location.href = `/alphas/001/workpad-edit.html?id=${id}`;
-    };
-
-    deleteBtn.onclick = () => {
-      if (confirm('Are you sure you want to delete this workpad?')) {
-        workpads.splice(id, 1);
-        localStorage.setItem('workpads', JSON.stringify(workpads));
-        window.location.href = '/alphas/001/workpads.html';
+    // Compression utility functions
+    function compress(str) {
+      // Simple compression using btoa
+      try {
+        return btoa(unescape(encodeURIComponent(str)));
+      } catch (e) {
+        return btoa(str);
       }
-    };
-  }
-</script>
+    }
+
+    function generateShareableContent(pad, comments) {
+      const shareData = {
+        title: pad.process || 'Untitled Workpad',
+        customer: pad.process || 'N/A',
+        date: pad.date || 'N/A',
+        time: pad.meetingTime || 'N/A',
+        location: pad.location || 'N/A',
+        details: pad.details || 'None',
+        story: pad.story || 'None',
+        actions: pad.actions || [],
+        comments: comments || [],
+        timestamp: new Date().toISOString()
+      };
+
+      return JSON.stringify(shareData);
+    }
+
+    if (workpadId === null || !workpads[workpadId]) {
+      document.getElementById('workpad-container').innerHTML = '<p>Workpad not found.</p>';
+    } else {
+      const pad = workpads[workpadId];
+      document.getElementById('workpad-title').textContent = pad.process || 'Untitled Workpad';
+      document.getElementById('customerName').textContent = pad.process || 'N/A';
+      document.getElementById('date').textContent = pad.date || 'N/A';
+      document.getElementById('location').textContent = pad.location || 'N/A';
+      document.getElementById('meetingTime').textContent = pad.meetingTime || 'N/A';
+      document.getElementById('details').textContent = pad.details || 'None';
+      document.getElementById('story').textContent = pad.story || 'None';
+
+      const actionsList = document.getElementById('actions-list');
+      if (Array.isArray(pad.actions)) {
+        pad.actions.forEach(action => {
+          const div = document.createElement('div');
+          div.className = 'action-item';
+          div.innerHTML = `
+            <p><strong>${action.title || '(Untitled Action)'}</strong></p>
+            <p>${action.notes || ''}</p>
+          `;
+          actionsList.appendChild(div);
+        });
+      }
+
+      const commentsKey = `workpad-comments-${workpadId}`;
+      const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+      const commentsContainer = document.getElementById('comments');
+      const commentInput = document.getElementById('new-comment');
+      const commentBtn = document.getElementById('add-comment');
+
+      function renderComments() {
+        commentsContainer.innerHTML = '';
+        comments.forEach(comment => {
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.textContent = comment;
+          commentsContainer.appendChild(div);
+        });
+      }
+
+      renderComments();
+
+      commentBtn.addEventListener('click', () => {
+        const text = commentInput.value.trim();
+        if (text) {
+          comments.push(text);
+          localStorage.setItem(commentsKey, JSON.stringify(comments));
+          commentInput.value = '';
+          renderComments();
+        }
+      });
+
+      // Share Link Generation
+      document.getElementById('share-btn').addEventListener('click', () => {
+        const shareBtn = document.getElementById('share-btn');
+        shareBtn.textContent = 'Generating...';
+        shareBtn.classList.add('generating');
+
+        try {
+          const shareableContent = generateShareableContent(pad, comments);
+          const compressed = compress(shareableContent);
+          const baseUrl = window.location.origin;
+          const shareUrl = `${baseUrl}/viewer.html?d=${encodeURIComponent(compressed)}`;
+
+          document.getElementById('share-link').textContent = shareUrl;
+          document.getElementById('share-section').classList.add('active');
+
+          // Calculate stats
+          const originalSize = new Blob([shareableContent]).size;
+          const compressedSize = new Blob([compressed]).size;
+          const savings = Math.round((1 - compressedSize / originalSize) * 100);
+
+          document.getElementById('share-stats').innerHTML = `
+            Original: ${originalSize} bytes | Compressed: ${compressedSize} bytes | Savings: ${savings}%
+          `;
+
+          shareBtn.textContent = 'Generate Share Link';
+          shareBtn.classList.remove('generating');
+
+        } catch (error) {
+          console.error('Error generating share link:', error);
+          alert('Error generating share link. Content might be too large.');
+          shareBtn.textContent = 'Generate Share Link';
+          shareBtn.classList.remove('generating');
+        }
+      });
+
+      // Copy to clipboard
+      document.getElementById('copy-btn').addEventListener('click', () => {
+        const shareLink = document.getElementById('share-link').textContent;
+        navigator.clipboard.writeText(shareLink).then(() => {
+          const copyBtn = document.getElementById('copy-btn');
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy Link';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = shareLink;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          const copyBtn = document.getElementById('copy-btn');
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy Link';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+
+      // Image Export (keeping original functionality)
+      document.getElementById('download-btn').addEventListener('click', () => {
+        const exportBox = document.getElementById('jpeg-export');
+        exportBox.innerHTML = `
+          <h2>${pad.process || 'Untitled Workpad'}</h2>
+          <div class="section">
+            <b>DATE</b><br> ${pad.date || ''}<hr>
+            <b>MEETING TIME</b><br> ${pad.meetingTime || ''}<hr>
+            <b>MEETING LOCATION</b><br>${pad.location || ''}<hr>
+          </div>
+          <div class="section">
+            <b>ACTIONS</b><hr>
+            ${(pad.actions || []).map(action => `
+              <div class="action-item">
+                <p><strong>${action.title || ''}</strong></p>
+                <p>${action.notes || ''}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="section">
+          <b>DETAILS</b><br>
+            <p>${pad.details || ''}</p>
+          </div>
+          <div class="section">
+          <b>STORY</b><br>
+            <p>${pad.story || ''}</p>
+          </div>
+        `;
+        exportBox.style.display = 'block';
+
+        html2canvas(exportBox, {
+          scale: 3,
+          width: 375,
+          backgroundColor: '#fff'
+        }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = `${pad.process || 'workpad'}.jpg`;
+          link.href = canvas.toDataURL('image/jpeg');
+          link.click();
+          exportBox.style.display = 'none';
+        });
+      });
+    }
+  </script>
+</body>
+</html>

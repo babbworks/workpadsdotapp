@@ -5,6 +5,7 @@ permalink: /babb/plainjane/workpads
 ---
 
 <div class="workpads-container">
+  <input type="text" id="filter-input" placeholder="Filter workpads..." style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem;" />
   <button id="new-workpad-btn">New Workpad</button>
   
   <div id="workpad-list" class="workpad-list">
@@ -47,15 +48,37 @@ permalink: /babb/plainjane/workpads
     margin: 0 0 0.5rem;
   }
 
+  .workpad-title {
+    cursor: pointer;
+    color: #0066cc;
+    text-decoration: underline;
+  }
+
+  ul.actions-list {
+    margin: 0.5rem 0 0 1.2rem;
+    padding-left: 0;
+    list-style: disc;
+  }
+
+  ul.actions-list li {
+    margin-bottom: 0.3rem;
+  }
+
+  ul.actions-list li strong {
+    font-weight: 600;
+  }
+
   @media (max-width: 640px) {
     .workpads-container {
       margin: 1rem;
     }
   }
 </style>
+
 <script>
   const workpadList = document.getElementById('workpad-list');
   const newWorkpadBtn = document.getElementById('new-workpad-btn');
+  const filterInput = document.getElementById('filter-input');
 
   let workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
 
@@ -63,26 +86,56 @@ permalink: /babb/plainjane/workpads
     localStorage.setItem('workpads', JSON.stringify(workpads));
   }
 
-  function renderWorkpads() {
+  function renderWorkpads(filterText = '') {
     workpadList.innerHTML = '';
-    workpads.forEach((pad, index) => {
+    const filtered = workpads.filter(pad => {
+      const haystack = [
+        pad.process || pad.customerName || '',
+        pad.date || '',
+        pad.meetingTime || '',
+        pad.location || '',
+        pad.details || '',
+        pad.story || '',
+        (pad.actions || []).map(a => a.title + ' ' + (a.notes || '')).join(' ')
+      ].join(' ').toLowerCase();
+      return haystack.includes(filterText.toLowerCase());
+    });
+
+    filtered.forEach((pad, index) => {
       const card = document.createElement('div');
       card.className = 'workpad-card';
 
+      // Prepare actions HTML
+      let actionsHTML = '<p><strong>Actions:</strong></p>';
+      if (pad.actions && pad.actions.length > 0) {
+        actionsHTML += '<ul class="actions-list">';
+        pad.actions.forEach(action => {
+          actionsHTML += `<li><strong>${action.title || '(no title)'}</strong>${action.notes ? ': ' + action.notes : ''}</li>`;
+        });
+        actionsHTML += '</ul>';
+      } else {
+        actionsHTML += '<p>(none)</p>';
+      }
+
       card.innerHTML = `
-        <h2 class="workpad-title" style="cursor:pointer; color:#0066cc; text-decoration:underline;">${pad.customerName || 'Untitled Workpad'}</h2>
-        <p><strong>Date:</strong> ${pad.date || 'N/A'}</p>
-        <p><strong>Location:</strong> ${pad.location || 'N/A'}</p>
+        <h2 class="workpad-title">${pad.process || pad.customerName || 'Untitled Workpad'}</h2>
+        <p>📅 <strong>Date:</strong> ${pad.date || 'N/A'}</p>
+        <p>⏰ <strong>Meeting Time:</strong> ${pad.meetingTime || 'N/A'}</p>
+        <p>🛣️ <strong>Meeting Location:</strong> ${pad.location || 'N/A'}</p>
+        ${actionsHTML}
+        <p><strong>Details:</strong> ${pad.details || '(none)'}</p>
+        <p><strong>Story:</strong> ${pad.story || '(none)'}</p>
+
         <div class="card-buttons" style="margin-top: 0.5rem;">
           <button class="edit-btn" data-index="${index}" aria-label="Edit Workpad">✏️ Edit</button>
           <button class="delete-btn" data-index="${index}" aria-label="Delete Workpad">🗑️ Delete</button>
         </div>
       `;
 
-      // View on title click
-      card.querySelector('.workpad-title').onclick = () => {
-        window.location.href = `/babb/plainjane/workpad-view.html?id=${index}`;
-      };
+      // Make customer name clickable to view page
+      card.querySelector('.workpad-title').addEventListener('click', () => {
+        window.location.href = `/babb/plainjane/workpad-view?id=${index}`;
+      });
 
       workpadList.appendChild(card);
     });
@@ -91,7 +144,7 @@ permalink: /babb/plainjane/workpads
     document.querySelectorAll('.edit-btn').forEach(btn => {
       btn.onclick = (e) => {
         const idx = e.target.dataset.index;
-        window.location.href = `/babb/plainjane/workpad-edit.html?id=${idx}`;
+        window.location.href = `/babb/plainjane/workpad-edit?id=${idx}`;
       };
     });
 
@@ -101,15 +154,19 @@ permalink: /babb/plainjane/workpads
         if (confirm('Are you sure you want to delete this workpad?')) {
           workpads.splice(idx, 1);
           saveWorkpads();
-          renderWorkpads();
+          renderWorkpads(filterInput.value);
         }
       };
     });
   }
 
   newWorkpadBtn.onclick = () => {
-    window.location.href = '/babb/plainjane/workpad-edit.html';
+    window.location.href = '/babb/plainjane/workpad-edit';
   };
+
+  filterInput.addEventListener('input', () => {
+    renderWorkpads(filterInput.value);
+  });
 
   renderWorkpads();
 </script>

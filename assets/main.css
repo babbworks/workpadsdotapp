@@ -252,6 +252,12 @@ table {
         .site-nav .page-link:not(:last-child) {
           margin-right: 0; } }
 
+.page-title,
+.post-title {
+  font-size: 1.25rem; /* Smaller than the default */
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
 
 <style>
   .home-columns {
@@ -359,13 +365,6 @@ table {
 .post-header {
   margin-bottom: 30px; }
 
-.post-title {
-  font-size: 42px;
-  letter-spacing: -1px;
-  line-height: 1; }
-  @media screen and (max-width: 800px) {
-    .post-title {
-      font-size: 36px; } }
 
 .post-content {
   margin-bottom: 30px; }
