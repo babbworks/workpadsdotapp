@@ -1,0 +1,165 @@
+---
+layout: default
+title: View Workpad
+permalink: /babb/plainjane/workpad-view
+---
+<style>
+  .workpad-view-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+    font-family: system-ui, sans-serif;
+  }
+
+  .workpad-block {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+  }
+
+  .workpad-block h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25rem;
+  }
+
+  ul {
+    padding-left: 1.2rem;
+  }
+
+  .button-group {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .button-group button {
+    flex: 1 1 120px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+  }
+
+  .button-group button:focus-visible {
+    outline: 3px solid #005fcc;
+    outline-offset: 2px;
+  }
+
+  .button-group button#edit-btn {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .button-group button#edit-btn:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgb(0 123 255 / 0.3);
+  }
+
+  .button-group button#delete-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .button-group button#delete-btn:hover {
+    background-color: #a71d2a;
+    box-shadow: 0 4px 8px rgb(220 53 69 / 0.4);
+  }
+
+  .button-group button[onclick] {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .button-group button[onclick]:hover {
+    background-color: #565e64;
+  }
+</style>
+
+<div class="workpad-view-container">
+  <h1>Workpad</h1>
+  <div id="workpad-content"></div>
+
+  <div class="button-group">
+    <button onclick="window.location.href='workpads.html'">← Back to List</button>
+    <button id="edit-btn">✏️ Edit</button>
+    <button id="delete-btn">🗑️ Delete</button>
+  </div>
+</div>
+
+<script>
+  const content = document.getElementById('workpad-content');
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('id'), 10);
+
+  const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
+  const pad = workpads[id];
+
+  if (!pad) {
+    content.innerHTML = '<p>Workpad not found.</p>';
+  } else {
+    content.innerHTML = `
+      <div class="workpad-block">
+        <h2>Header</h2>
+        <p><strong>Customer:</strong> ${pad.customerName || '(none)'}</p>
+        <p><strong>Date:</strong> ${pad.date || '(none)'}</p>
+        <p><strong>Start Time:</strong> ${pad.startTime || '(none)'}</p>
+        <p><strong>End Time:</strong> ${pad.endTime || '(none)'}</p>
+        <p><strong>Location:</strong> ${pad.location || '(none)'}</p>
+        <p><strong>Meeting Spot:</strong> ${pad.meetingSpot || '(none)'}</p>
+        <p><strong>Meeting Location:</strong> ${pad.meetingLocation || '(none)'}</p>
+      </div>
+
+      <div class="workpad-block">
+        <h2>Actions</h2>
+        ${pad.actions && pad.actions.length ? `
+          <ul>
+            ${pad.actions.map(a => `
+              <li>
+                <strong>${a.title || '(no title)'}</strong><br>
+                <span>${a.notes || '(no notes)'}</span>
+              </li>`).join('')}
+          </ul>
+        ` : '<p>No actions recorded.</p>'}
+      </div>
+
+      <div class="workpad-block">
+        <h2>Details</h2>
+        <p>${pad.details || '(none)'}</p>
+      </div>
+
+      <div class="workpad-block">
+        <h2>Story</h2>
+        <p>${pad.story || '(none)'}</p>
+      </div>
+    `;
+  }
+
+  const editBtn = document.getElementById('edit-btn');
+  const deleteBtn = document.getElementById('delete-btn');
+
+  if (!pad) {
+    editBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+  } else {
+    editBtn.onclick = () => {
+      window.location.href = `/alphas/001/workpad-edit.html?id=${id}`;
+    };
+
+    deleteBtn.onclick = () => {
+      if (confirm('Are you sure you want to delete this workpad?')) {
+        workpads.splice(id, 1);
+        localStorage.setItem('workpads', JSON.stringify(workpads));
+        window.location.href = '/alphas/001/workpads.html';
+      }
+    };
+  }
+</script>

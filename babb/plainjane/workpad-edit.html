@@ -1,0 +1,163 @@
+---
+layout: default
+title: Edit Workpad
+permalink: /babb/plainjane/workpad-edit
+---
+
+<div class="workpad-edit-container">
+  <h1>New Workpad</h1>
+  <form id="workpad-form">
+
+    <fieldset>
+      <legend>PROCESS</legend>
+      <label>Customer Name: <input type="text" id="customerName" required></label>
+      <label>Date of Work: <input type="date" id="date"></label>
+      <label>Start Time: <input type="time" id="startTime"></label>
+      <label>End Time: <input type="time" id="endTime"></label>
+      <label>Location: <input type="text" id="location"></label>
+      <label>Meeting Spot: <input type="text" id="meetingSpot"></label>
+      <label>Meeting Location: <input type="text" id="meetingLocation"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>WORK ACTIONS (up to 10)</legend>
+      <div id="actions-list"></div>
+      <button type="button" id="add-action-btn">+ Add Action</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>DETAILS OF WORK</legend>
+      <textarea id="details" rows="4" placeholder="Add details here..."></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>STORY OF WORK</legend>
+      <textarea id="story" rows="4" placeholder="Narrative summary..."></textarea>
+    </fieldset>
+
+    <button type="submit">Save Workpad</button>
+  </form>
+</div>
+
+<style>
+  .workpad-edit-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
+  form label {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    box-sizing: border-box;
+  }
+
+  fieldset {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  #add-action-btn {
+    margin-top: 0.5rem;
+  }
+
+  button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+<script>
+  const form = document.getElementById('workpad-form');
+  const actionsList = document.getElementById('actions-list');
+  const addActionBtn = document.getElementById('add-action-btn');
+
+  let actions = [];
+  let editingId = null;
+
+  // Parse URL param ?id=
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get('id');
+  const storedWorkpads = JSON.parse(localStorage.getItem('workpads') || '[]');
+
+  function renderActions() {
+    actionsList.innerHTML = '';
+    actions.forEach((action, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `
+        <label>Action Title: <input type="text" value="${action.title || ''}" data-index="${index}" data-field="title"></label>
+        <label>Action Notes: <textarea rows="2" data-index="${index}" data-field="notes">${action.notes || ''}</textarea></label>
+      `;
+      actionsList.appendChild(wrapper);
+    });
+  }
+
+  addActionBtn.onclick = () => {
+    if (actions.length < 10) {
+      actions.push({ title: '', notes: '' });
+      renderActions();
+    } else {
+      alert("Maximum of 10 actions allowed.");
+    }
+  };
+
+  actionsList.addEventListener('input', (e) => {
+    const index = e.target.dataset.index;
+    const field = e.target.dataset.field;
+    actions[index][field] = e.target.value;
+  });
+
+  // Load existing workpad if editing
+  if (idParam !== null && storedWorkpads[idParam]) {
+    editingId = Number(idParam);
+    const pad = storedWorkpads[editingId];
+
+    document.getElementById('customerName').value = pad.customerName || '';
+    document.getElementById('date').value = pad.date || '';
+    document.getElementById('startTime').value = pad.startTime || '';
+    document.getElementById('endTime').value = pad.endTime || '';
+    document.getElementById('location').value = pad.location || '';
+    document.getElementById('meetingSpot').value = pad.meetingSpot || '';
+    document.getElementById('meetingLocation').value = pad.meetingLocation || '';
+    document.getElementById('details').value = pad.details || '';
+    document.getElementById('story').value = pad.story || '';
+    actions = pad.actions && pad.actions.length ? pad.actions : [];
+    renderActions();
+
+    // Change heading and submit button text
+    document.querySelector('h1').textContent = 'Edit Workpad';
+    form.querySelector('button[type="submit"]').textContent = 'Update Workpad';
+  } else {
+    // New workpad defaults
+    actions = [];
+    renderActions();
+  }
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+
+    const workpad = {
+      customerName: document.getElementById('customerName').value,
+      date: document.getElementById('date').value,
+      startTime: document.getElementById('startTime').value,
+      endTime: document.getElementById('endT
+
