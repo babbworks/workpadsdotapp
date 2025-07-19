@@ -287,5 +287,19 @@ permalink: /babb/plainjane/workpad-edit
       });
     })();
   </script>
+
+<script src="/assets/js/pako.min.js"></script>
+
+<script>
+  // Verify that pako is loaded and functional
+  const input = 'test string';
+  const compressed = pako.deflate(input, { to: 'string' });
+  console.log('Compressed:', compressed);
+
+  const decompressed = pako.inflate(compressed, { to: 'string' });
+  console.log('Decompressed:', decompressed); // should log: "test string"
+</script>
+
+
 </body>
 </html>

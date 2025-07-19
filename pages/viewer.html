@@ -204,17 +204,42 @@ permalink: /viewer.html
     <div class="timestamp" id="timestamp" style="display: none;"></div>
   </div>
 
-  <!-- Image export container -->
   <div id="jpeg-export"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.0/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <script>
-    // Decompression utility function
-    function decompress(str) {
+    // Decompression utility function that handles all 4 methods
+    function decompressData(base64EncodedData, method) {
+      const decodedUri = decodeURIComponent(base64EncodedData); // Decode URI component first
+
       try {
-        return decodeURIComponent(escape(atob(str)));
+        switch (method) {
+          case 'raw':
+            return decodedUri; // No actual decompression, just decoded URI
+          case 'lzstring':
+            // LZString.decompressFromBase64 expects base64 string
+            return LZString.decompressFromBase64(decodedUri);
+          case 'fflate':
+            // fflate.inflateSync expects Uint8Array
+            const fflateBinaryString = atob(decodedUri);
+            const fflateBinaryArray = new Uint8Array(fflateBinaryString.split('').map(char => char.charCodeAt(0)));
+            return fflate.inflateSync(fflateBinaryArray).reduce((data, byte) => data + String.fromCharCode(byte), '');
+          case 'pako':
+            // pako.inflate expects Uint8Array or ArrayBuffer, returns Uint8Array
+            const pakoBinaryString = atob(decodedUri);
+            const pakoBinaryArray = new Uint8Array(pakoBinaryString.split('').map(char => char.charCodeAt(0)));
+            return pako.inflate(pakoBinaryArray, { to: 'string' }); // 'to: string' for direct string output
+          default:
+            console.error('Unknown compression method:', method);
+            throw new Error('Unsupported compression method.');
+        }
       } catch (e) {
-        return atob(str);
+        console.error(`Decompression failed for method '${method}':`, e);
+        throw new Error(`Failed to decompress data using method '${method}'. The data might be corrupted or the method is incorrect.`);
       }
     }
 
@@ -246,6 +271,7 @@ permalink: /viewer.html
 
         // Display actions
         const actionsList = document.getElementById('actions-list');
+        actionsList.innerHTML = ''; // Clear existing content
         if (Array.isArray(data.actions) && data.actions.length > 0) {
           data.actions.forEach(action => {
             const div = document.createElement('div');
@@ -262,6 +288,7 @@ permalink: /viewer.html
 
         // Display comments
         const commentsContainer = document.getElementById('comments');
+        commentsContainer.innerHTML = ''; // Clear existing content
         if (Array.isArray(data.comments) && data.comments.length > 0) {
           data.comments.forEach(comment => {
             const div = document.createElement('div');
@@ -294,7 +321,7 @@ permalink: /viewer.html
 
       } catch (error) {
         console.error('Error displaying workpad:', error);
-        showError('Failed to display workpad data. The data may be corrupted.');
+        showError('Failed to display workpad data. The data may be corrupted or in an unexpected format.');
       }
     }
 
@@ -347,23 +374,45 @@ permalink: /viewer.html
     }
 
     // Main execution
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const compressedData = urlParams.get('d');
+    document.addEventListener('DOMContentLoaded', () => { // Ensure DOM is loaded
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const compressedData = urlParams.get('d');
+        const compressionMethod = urlParams.get('m'); // Get the compression method
 
-      if (!compressedData) {
-        showError('No workpad data found in URL. Please check the share link.');
-      } else {
-        // Decompress and parse the data
-        const decompressed = decompress(decodeURIComponent(compressedData));
-        const workpadData = JSON.parse(decompressed);
+        if (!compressedData) {
+          showError('No workpad data found in URL. Please check the share link.');
+          return;
+        }
+
+        if (!compressionMethod) {
+          showError('Compression method not specified in URL. The share link may be outdated or malformed.');
+          return;
+        }
+
+        let decompressedString;
+        try {
+            decompressedString = decompressData(compressedData, compressionMethod);
+        } catch (decompressionError) {
+            showError(`Failed to decompress data: ${decompressionError.message}`);
+            console.error('Decompression attempt failed:', decompressionError);
+            return;
+        }
+
+        if (decompressedString === null) { // Some decompressors return null on failure
+            showError('Decompression resulted in empty or invalid data. The share link might be corrupted.');
+            return;
+        }
+        
+        const workpadData = JSON.parse(decompressedString);
         
         displayWorkpad(workpadData);
+
+      } catch (error) {
+        console.error('Critical error during workpad loading:', error);
+        showError('An unexpected error occurred while loading the workpad. The share link may be invalid or corrupted.');
       }
-    } catch (error) {
-      console.error('Error loading workpad:', error);
-      showError('Failed to load workpad data. The share link may be invalid or corrupted.');
-    }
+    });
   </script>
 </body>
 </html>

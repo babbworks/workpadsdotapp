@@ -98,9 +98,10 @@ permalink: /babb/plainjane/workpad-view
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+      align-items: flex-end; /* Align items at the bottom */
     }
 
-    #download-btn, #share-btn {
+    #download-btn {
       background-color: #28a745;
       color: white;
       border: none;
@@ -115,15 +116,51 @@ permalink: /babb/plainjane/workpad-view
       background-color: #1e7e34;
     }
 
-    #share-btn {
-      background-color: #007acc;
+    /* Share Link dropdown styles */
+    .share-dropdown-container {
+      position: relative;
+      display: inline-flex; /* Use flex to align select and button */
+      align-items: flex-end; /* Align items at the bottom */
+      margin-left: 0.5rem; /* Space between Download and Share controls */
     }
 
-    #share-btn:hover {
+    .share-dropdown-container select {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      appearance: none; /* Remove default arrow */
+      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.6c-5%200-9.3%201.8-13.2%206.4-3.9%204.5-6.1%2010.2-6.1%2016.1%200%205.9%202.2%2011.6%206.1%2016.1l128.2%20127.9c3.9%203.9%209.2%206.1%2014.1%206.1s10.2-2.2%2014.1-6.1L287%20101.6c3.9-4.5%206.1-10.2%206.1-16.1s-2.2-11.6-6.1-16.1z%22%2F%3E%3C%2Fsvg%3E');
+      background-repeat: no-repeat;
+      background-position: right 0.7em top 50%;
+      background-size: 0.65em auto;
+      padding-right: 2.5em; /* Make space for the arrow */
+    }
+
+    .share-dropdown-container select:hover {
+      background-color: #e0e0e0;
+    }
+
+    .share-dropdown-container button {
+      background-color: #007acc;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 0.5rem; /* Space between select and generate button */
+    }
+
+    .share-dropdown-container button:hover {
       background-color: #005a99;
     }
 
-    #share-btn.generating {
+    .share-dropdown-container button.generating {
       background-color: #6c757d;
       cursor: not-allowed;
     }
@@ -177,7 +214,7 @@ permalink: /babb/plainjane/workpad-view
       margin-top: 0.5rem;
     }
 
-    /* ✅ Updated export target styling */
+    /* Updated export target styling */
     #jpeg-export {
       display: none;
       width: 375px;
@@ -226,7 +263,16 @@ permalink: /babb/plainjane/workpad-view
     
     <div class="button-container">
       <button id="download-btn">Download Image</button>
-      <button id="share-btn">Generate Share Link</button>
+      
+      <div class="share-dropdown-container">
+        <select id="share-option-select">
+          <option value="raw">Raw JSON Link</option>
+          <option value="lzstring">LZ-String Compressed Link</option>
+          <option value="fflate">Fflate Compressed Link</option>
+          <option value="pako" selected>Pako Compressed Link</option>
+        </select>
+        <button id="generate-share-link-btn">Generate Link</button>
+      </div>
     </div>
 
     <div id="share-section" class="share-section">
@@ -271,45 +317,56 @@ permalink: /babb/plainjane/workpad-view
     <a class="back-link" href="/babb/plainjane/workpads">← Back to Workpads</a>
   </div>
 
-  <!-- Image export container -->
   <div id="jpeg-export"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.0/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const workpadId = urlParams.get('id');
-    const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
+    (function() { // Wrap in IIFE for scope
+      const urlParams = new URLSearchParams(window.location.search);
+      const workpadId = urlParams.get('id');
+      const workpads = JSON.parse(localStorage.getItem('workpads') || '[]');
 
-    // Compression utility functions
-    function compress(str) {
-      // Simple compression using btoa
-      try {
-        return btoa(unescape(encodeURIComponent(str)));
-      } catch (e) {
-        return btoa(str);
+      // Compression utility functions
+      function compressWithFflate(str) {
+        const utf8Bytes = new TextEncoder().encode(str);
+        const compressed = fflate.deflateSync(utf8Bytes, { level: 9 }); // Use max compression level
+        return btoa(String.fromCharCode(...compressed)); // Base64 encode binary string
       }
-    }
 
-    function generateShareableContent(pad, comments) {
-      const shareData = {
-        title: pad.process || 'Untitled Workpad',
-        customer: pad.process || 'N/A',
-        date: pad.date || 'N/A',
-        time: pad.meetingTime || 'N/A',
-        location: pad.location || 'N/A',
-        details: pad.details || 'None',
-        story: pad.story || 'None',
-        actions: pad.actions || [],
-        comments: comments || [],
-        timestamp: new Date().toISOString()
-      };
+      function compressWithPako(str) {
+        // Pako's deflate method expects a Uint8Array or string, returns Uint8Array
+        const compressed = pako.deflate(str, { to: 'string' }); // 'to: string' for outputting a binary string
+        return btoa(compressed); // Base64 encode the binary string
+      }
 
-      return JSON.stringify(shareData);
-    }
+      function compressWithLZString(str) {
+        return LZString.compressToBase64(str);
+      }
 
-    if (workpadId === null || !workpads[workpadId]) {
-      document.getElementById('workpad-container').innerHTML = '<p>Workpad not found.</p>';
-    } else {
+      function generateShareableContent(pad, comments) {
+        const shareData = {
+          title: pad.process || 'Untitled Workpad',
+          customer: pad.process || 'N/A',
+          date: pad.date || 'N/A',
+          time: pad.meetingTime || 'N/A',
+          location: pad.location || 'N/A',
+          details: pad.details || 'None',
+          story: pad.story || 'None',
+          actions: pad.actions || [],
+          comments: comments || [],
+          timestamp: new Date().toISOString()
+        };
+        return JSON.stringify(shareData);
+      }
+
+      if (workpadId === null || !workpads[workpadId]) {
+        document.getElementById('workpad-container').innerHTML = '<p>Workpad not found.</p>';
+        return; // Exit if workpad not found
+      } 
+
       const pad = workpads[workpadId];
       document.getElementById('workpad-title').textContent = pad.process || 'Untitled Workpad';
       document.getElementById('customerName').textContent = pad.process || 'N/A';
@@ -333,7 +390,7 @@ permalink: /babb/plainjane/workpad-view
       }
 
       const commentsKey = `workpad-comments-${workpadId}`;
-      const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+      let comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
       const commentsContainer = document.getElementById('comments');
       const commentInput = document.getElementById('new-comment');
       const commentBtn = document.getElementById('add-comment');
@@ -361,37 +418,73 @@ permalink: /babb/plainjane/workpad-view
       });
 
       // Share Link Generation
-      document.getElementById('share-btn').addEventListener('click', () => {
-        const shareBtn = document.getElementById('share-btn');
-        shareBtn.textContent = 'Generating...';
-        shareBtn.classList.add('generating');
+      document.getElementById('generate-share-link-btn').addEventListener('click', () => {
+        const generateBtn = document.getElementById('generate-share-link-btn');
+        const shareOption = document.getElementById('share-option-select').value;
+        generateBtn.textContent = 'Generating...';
+        generateBtn.classList.add('generating');
 
         try {
           const shareableContent = generateShareableContent(pad, comments);
-          const compressed = compress(shareableContent);
+          let encodedData = '';
+          let compressionMethod = 'None';
+          let originalSize = new TextEncoder().encode(shareableContent).byteLength; // Use byteLength for accurate size
+          let compressedSize = 0;
+
+          switch (shareOption) {
+            case 'raw':
+              encodedData = encodeURIComponent(shareableContent);
+              compressionMethod = 'Raw JSON';
+              compressedSize = new TextEncoder().encode(encodedData).byteLength;
+              break;
+            case 'lzstring':
+              const lzCompressed = compressWithLZString(shareableContent);
+              encodedData = encodeURIComponent(lzCompressed);
+              compressionMethod = 'LZ-String';
+              compressedSize = new TextEncoder().encode(encodedData).byteLength;
+              break;
+            case 'fflate':
+              const fflateCompressed = compressWithFflate(shareableContent);
+              encodedData = encodeURIComponent(fflateCompressed);
+              compressionMethod = 'Fflate (Deflate)';
+              compressedSize = new TextEncoder().encode(encodedData).byteLength;
+              break;
+            case 'pako':
+              const pakoCompressed = compressWithPako(shareableContent);
+              encodedData = encodeURIComponent(pakoCompressed);
+              compressionMethod = 'Pako (Deflate)';
+              compressedSize = new TextEncoder().encode(encodedData).byteLength;
+              break;
+            default:
+              console.error('Unknown share option selected.');
+              alert('Invalid share option selected.');
+              generateBtn.textContent = 'Generate Link';
+              generateBtn.classList.remove('generating');
+              return;
+          }
+          
           const baseUrl = window.location.origin;
-          const shareUrl = `${baseUrl}/viewer.html?d=${encodeURIComponent(compressed)}`;
+          // Note: viewer.html will need to know which decompression to use based on the 'm' parameter
+          const shareUrl = `${baseUrl}/viewer.html?m=${shareOption}&d=${encodedData}`;
 
           document.getElementById('share-link').textContent = shareUrl;
           document.getElementById('share-section').classList.add('active');
 
-          // Calculate stats
-          const originalSize = new Blob([shareableContent]).size;
-          const compressedSize = new Blob([compressed]).size;
-          const savings = Math.round((1 - compressedSize / originalSize) * 100);
+          const savings = originalSize > 0 ? Math.round((1 - compressedSize / originalSize) * 100) : 0;
 
           document.getElementById('share-stats').innerHTML = `
-            Original: ${originalSize} bytes | Compressed: ${compressedSize} bytes | Savings: ${savings}%
+            Method: <strong>${compressionMethod}</strong><br>
+            Original Size: ${originalSize} bytes | Encoded Size: ${compressedSize} bytes | Savings: ${savings}%
           `;
 
-          shareBtn.textContent = 'Generate Share Link';
-          shareBtn.classList.remove('generating');
+          generateBtn.textContent = 'Generate Link';
+          generateBtn.classList.remove('generating');
 
         } catch (error) {
           console.error('Error generating share link:', error);
-          alert('Error generating share link. Content might be too large.');
-          shareBtn.textContent = 'Generate Share Link';
-          shareBtn.classList.remove('generating');
+          alert('Error generating share link. Content might be too large or compression failed. Check console for details.');
+          generateBtn.textContent = 'Generate Link';
+          generateBtn.classList.remove('generating');
         }
       });
 
@@ -427,7 +520,7 @@ permalink: /babb/plainjane/workpad-view
         });
       });
 
-      // Image Export (keeping original functionality)
+      // Image Export
       document.getElementById('download-btn').addEventListener('click', () => {
         const exportBox = document.getElementById('jpeg-export');
         exportBox.innerHTML = `
@@ -447,11 +540,11 @@ permalink: /babb/plainjane/workpad-view
             `).join('')}
           </div>
           <div class="section">
-          <b>DETAILS</b><br>
+            <b>DETAILS</b><br>
             <p>${pad.details || ''}</p>
           </div>
           <div class="section">
-          <b>STORY</b><br>
+            <b>STORY</b><br>
             <p>${pad.story || ''}</p>
           </div>
         `;
@@ -467,9 +560,13 @@ permalink: /babb/plainjane/workpad-view
           link.href = canvas.toDataURL('image/jpeg');
           link.click();
           exportBox.style.display = 'none';
+        }).catch(error => {
+          console.error("Error generating image:", error);
+          alert("Could not generate image. Please try again.");
+          exportBox.style.display = 'none';
         });
       });
-    }
+    })();
   </script>
 </body>
 </html>
