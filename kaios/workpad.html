@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workpad Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="manifest" href="/manifest.webapp">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="workpad-title">Loading Workpad...</h1>
+
+    <div id="workpad-details" class="workpad-detail-card">
+      <p><strong>Work:</strong> <span id="detail-work"></span></p>
+      <p><strong>Customer:</strong> <span id="detail-customer"></span></p>
+      <p><strong>Location:</strong> <span id="detail-location"></span></p>
+      <p><strong>Date:</strong> <span id="detail-date"></span></p>
+      <p><strong>Start Time:</strong> <span id="detail-startTime"></span></p>
+      <p><strong>End Time:</strong> <span id="detail-endTime"></span></p>
+      <p><strong>Hours:</strong> <span id="detail-hours"></span></p>
+      <p><strong>Meeting Time:</strong> <span id="detail-meetingTime"></span></p>
+      <p><strong>Meeting Location:</strong> <span id="detail-meetingLocation"></span></p>
+
+      <div class="detail-section" id="detail-workers-container">
+        <strong>Workers:</strong>
+        <ul id="detail-workers-list"></ul>
+      </div>
+
+      <div class="detail-section" id="detail-thingsToBring-container">
+        <strong>Things to Bring:</strong>
+        <ul id="detail-thingsToBring-list"></ul>
+      </div>
+
+      <div class="detail-section" id="detail-thingsToPurchase-container">
+        <strong>Things to Purchase:</strong>
+        <ul id="detail-thingsToPurchase-list"></ul>
+      </div>
+
+      <div class="detail-section" id="detail-actions-container">
+        <strong>Actions:</strong>
+        <ul id="detail-actions-list"></ul>
+      </div>
+
+      <div class="detail-section" id="detail-workDetails-container">
+        <strong>Details:</strong>
+        <p id="detail-workDetails"></p>
+      </div>
+
+      <div class="detail-section" id="detail-workStory-container">
+        <strong>Story:</strong>
+        <p id="detail-workStory"></p>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button type="button" id="edit-btn">Edit Workpad</button>
+      <button type="button" id="back-btn" class="cancel">Back to List</button>
+    </div>
+  </div>
+
+  <!-- Custom Message Box HTML -->
+  <div id="message-overlay" class="message-overlay hidden">
+    <div id="message-box" class="message-box">
+      <p id="message-text"></p>
+      <button id="message-ok-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- Dexie.js library (must be loaded before your scripts that use it) -->
+  <script src="/assets/js/dexie.min.js"></script>  <!-- Your Pako.js library -->
+  <script src="/assets/js/pako.min.js"></script>
+  <!-- Your Workpad-specific JavaScript -->
+  <script src="/workpad.js"></script>
+</body>
+</html>

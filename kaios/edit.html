@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Workpad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="manifest" href="/manifest.webapp" />
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="page-title">New Workpad</h1>
+
+    <form id="workpad-form">
+      <label for="work">Work Title</label>
+      <input type="text" id="work" name="work" placeholder="e.g., HVAC Repair" />
+
+      <label for="customer">Customer Name</label>
+      <input type="text" id="customer" name="customer" placeholder="Customer name" />
+
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" placeholder="Work location" />
+
+      <label for="date">Date</label>
+      <input type="date" id="date" name="date" />
+
+      <label for="startTime">Start Time</label>
+      <input type="text" id="startTime" name="startTime" placeholder="e.g., 09:00 AM" />
+
+      <label for="endTime">End Time</label>
+      <input type="text" id="endTime" name="endTime" placeholder="e.g., 05:00 PM" />
+
+      <label for="hours">Hours</label>
+      <input type="text" id="hours" name="hours" placeholder="e.g., 8 hours" />
+
+      <label for="meetingTime">Meeting Time</label>
+      <input type="text" id="meetingTime" name="meetingTime" placeholder="e.g., 10:00 AM" />
+
+      <label for="meetingLocation">Meeting Location</label>
+      <input type="text" id="meetingLocation" name="meetingLocation" placeholder="Meeting location" />
+
+      <label>Workers</label>
+      <div id="workers-container" class="dynamic-list-container"></div>
+      <button type="button" id="add-worker-btn" class="add-item-btn">+ Add Worker</button>
+
+      <label>Things to Bring</label>
+      <div id="things-to-bring-container" class="dynamic-list-container"></div>
+      <button type="button" id="add-bring-btn" class="add-item-btn">+ Add Item</button>
+
+      <label>Things to Purchase</label>
+      <div id="things-to-purchase-container" class="dynamic-list-container"></div>
+      <button type="button" id="add-purchase-btn" class="add-item-btn">+ Add Item</button>
+
+      <label>Actions</label>
+      <div id="actions-container" class="dynamic-list-container"></div>
+      <button type="button" id="add-action-btn" class="add-item-btn">+ Add Action</button>
+
+      <label for="details">Work Details</label>
+      <textarea id="details" name="details" placeholder="Detailed description of work done"></textarea>
+
+      <label for="story">Work Story</label>
+      <textarea id="story" name="story" placeholder="Narrative or story about the work"></textarea>
+
+      <div class="button-row">
+        <button type="submit">Save Workpad</button>
+        <button type="button" class="cancel" id="cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Custom Message Box HTML -->
+  <div id="message-overlay" class="message-overlay hidden">
+    <div id="message-box" class="message-box">
+      <p id="message-text"></p>
+      <button id="message-ok-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- Dexie.js library (must be loaded before your scripts that use it) -->
+  <script src="/assets/js/dexie.min.js"></script>  <!-- Your Pako.js library -->
+  <script src="/assets/js/pako.min.js"></script>
+  <!-- Your Edit Workpad JavaScript -->
+  <script src="/edit.js"></script>
+</body>
+</html>

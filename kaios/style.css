@@ -1,0 +1,470 @@
+/**
+ * Cleaned-up style.css for KaiOS Workpads App (320x240 screen)
+ *
+ * This file combines essential resets and app-specific styles,
+ * removing elements specific to a Jekyll site layout.
+ */
+
+/* --- Basic Resets and Core Elements --- */
+body, h1, h2, h3, h4, h5, h6,
+p, blockquote, pre, hr,
+dl, dd, ol, ul, figure {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* Use a system font for performance and native feel on KaiOS */
+  font-family: system-ui, sans-serif;
+  font-size: 16px; /* Base font size for readability */
+  line-height: 1.5;
+  color: #111; /* Dark text for contrast */
+  background-color: #f9f9f9; /* Light background */
+  /* No max-width here, let padding handle spacing for 320px screen */
+  padding: 10px; /* Overall padding for the app content */
+  box-sizing: border-box; /* Include padding in element's total width/height */
+  -webkit-text-size-adjust: 100%; /* Prevent text scaling issues */
+  /* Removed flex properties from body as they are likely for a full site layout */
+}
+
+.container {
+  max-width: 300px; /* Max width for content within the 320px screen */
+  margin: 0 auto;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Maintain vertical rhythm for common elements */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl, figure {
+  margin-bottom: 10px; /* Slightly reduced for smaller screen density */
+}
+
+/* Headings - keep simple font-weight */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400;
+}
+
+/* Images - ensure they don't overflow */
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Lists - basic indentation */
+ul, ol {
+  margin-left: 20px; /* Slightly reduced for smaller screen */
+}
+
+li > ul,
+li > ol {
+  margin-bottom: 0;
+}
+
+/* Links - basic styling */
+a {
+  color: #007acc; /* Consistent blue for links/buttons */
+  text-decoration: none;
+}
+a:visited {
+  color: #005a99;
+}
+a:hover {
+  color: #111;
+  text-decoration: underline;
+}
+
+/* Blockquotes - simple visual distinction */
+blockquote {
+  color: #828282;
+  border-left: 4px solid #e8e8e8;
+  padding-left: 10px;
+  font-size: 16px;
+  font-style: italic;
+}
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Code formatting - simple visual distinction */
+pre,
+code {
+  font-size: 14px; /* Slightly smaller for code */
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  background-color: #eef;
+}
+code {
+  padding: 1px 4px;
+}
+pre {
+  padding: 6px 8px;
+  overflow-x: auto; /* Allow horizontal scrolling for long lines */
+}
+pre > code {
+  border: 0;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+/* --- Workpads App Specific Styles --- */
+
+/* Page title */
+#page-title {
+  margin-bottom: 15px; /* More space below title */
+  font-size: 20px; /* Clear and readable title */
+  text-align: center;
+}
+
+/* Form layout */
+#workpad-form {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px; /* Internal padding for the form */
+}
+
+label {
+  display: block;
+  margin-top: 12px; /* Space above each label */
+  font-weight: 600;
+  font-size: 15px; /* Slightly smaller label font */
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+  width: calc(100% - 16px); /* Account for padding */
+  padding: 8px; /* Good padding for touch/D-pad input */
+  font-size: 15px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: inherit; /* Inherit from body for consistency */
+}
+
+textarea {
+  min-height: 70px; /* Slightly reduced height for small screen */
+  resize: vertical; /* Allow vertical resizing */
+}
+
+/* Button row for Save/Cancel */
+.button-row {
+  margin-top: 20px; /* Space above buttons */
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically on small screens */
+  gap: 10px; /* Space between stacked buttons */
+  justify-content: flex-start;
+}
+
+/* General button styling */
+button {
+  width: 100%; /* Make buttons full width when stacked */
+  padding: 10px 15px; /* Larger padding for easier interaction */
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  background-color: #007acc; /* Primary button color */
+  transition: background-color 0.2s ease;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+button:hover {
+  background-color: #005a99;
+}
+
+button.cancel {
+  background-color: #6c757d; /* Cancel button color */
+}
+
+button.cancel:hover {
+  background-color: #565e64;
+}
+
+/* Dynamic list containers (Workers, Things to Bring/Purchase, Actions) */
+.dynamic-list-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.dynamic-list-item {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap on small screens */
+  gap: 5px; /* Space between input and button */
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #fefefe;
+}
+
+.dynamic-list-item input[type="text"] {
+  flex-grow: 1; /* Allow input to take available space */
+  width: auto; /* Override 100% width from general input style */
+  margin-top: 0; /* Reset margin */
+  margin-bottom: 0;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.dynamic-list-item textarea {
+  flex-basis: 100%; /* Make textarea take full width */
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+/* Remove item button for dynamic lists */
+.remove-item-btn {
+  background-color: #dc3545; /* Red for remove */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 5px 10px; /* Smaller padding for remove button */
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  width: auto; /* Override full width for this button */
+  margin-left: auto; /* Push to the right */
+}
+
+.remove-item-btn:hover {
+  background-color: #a71d2a;
+}
+
+/* Add item button for dynamic lists */
+.add-item-btn {
+  margin-top: 10px;
+  background-color: #28a745; /* Green for add */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%; /* Full width */
+  box-sizing: border-box;
+}
+
+.add-item-btn:hover {
+  background-color: #1e7e34;
+}
+
+/* Styles for the workpads listing page (index.html) */
+#workpads-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+.workpad-item {
+  border: 1px solid #ddd;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column; /* Stack details and buttons */
+  gap: 8px; /* Space between details and button */
+}
+.workpad-item h3 {
+  margin: 0 0 5px 0;
+  color: #007acc;
+  font-size: 18px;
+}
+.workpad-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.workpad-item-actions {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap */
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.workpad-item-actions a,
+.workpad-item-actions button {
+  flex: 1; /* Allow buttons to grow and shrink */
+  min-width: 80px; /* Minimum width for buttons */
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.workpad-item-actions .view-button {
+  background-color: #007acc;
+  color: white;
+  text-decoration: none;
+}
+.workpad-item-actions .view-button:hover {
+  background-color: #005a99;
+}
+
+.workpad-item-actions .edit-button {
+  background-color: #ffc107; /* Yellowish for edit */
+  color: #333;
+  text-decoration: none;
+}
+.workpad-item-actions .edit-button:hover {
+  background-color: #e0a800;
+}
+
+.workpad-item-actions .delete-button {
+  background-color: #dc3545; /* Red for delete */
+  color: white;
+}
+.workpad-item-actions .delete-button:hover {
+  background-color: #a71d2a;
+}
+
+.workpad-sub-detail {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #333;
+}
+.workpad-sub-detail ul {
+  margin-left: 15px;
+  list-style-type: disc;
+}
+.workpad-sub-detail ul li {
+  margin-bottom: 2px;
+}
+.workpad-sub-detail p {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  white-space: pre-wrap; /* Preserve whitespace and line breaks */
+}
+
+.empty-list-message {
+  text-align: center;
+  margin-top: 20px;
+  color: #888;
+  font-style: italic;
+}
+
+/* --- Styles for workpad.html (Individual Workpad View) --- */
+.workpad-detail-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.workpad-detail-card p {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.workpad-detail-card strong {
+  color: #333;
+}
+
+.detail-section {
+  margin-top: 15px;
+  border-top: 1px dashed #eee;
+  padding-top: 10px;
+}
+
+.detail-section strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #007acc;
+}
+
+.detail-section ul {
+  list-style: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.detail-section ul li {
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+/* Custom Message Box Styles */
+.message-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.message-overlay.hidden {
+  display: none;
+}
+
+.message-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 280px; /* Fit KaiOS screen */
+  text-align: center;
+}
+
+.message-box p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.message-box button {
+  background-color: #007acc;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.message-box button:hover {
+  background-color: #005a99;
+}
+
+/* --- NEW ADDITIONS FOR edit.html FEATURES (from user's previous input) --- */
+
+/* Optional focus highlight for keyboard/D-pad nav */
+input:focus,
+textarea:focus,
+button:focus {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+/* List-style containers for dynamic fields */
+.dynamic-list {
+  margin-top: 6px;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+/* Reusable spacing class for sections in form */
+.form-section {
+  margin-top: 16px;
+}

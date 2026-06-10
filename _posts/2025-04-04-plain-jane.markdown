@@ -4,6 +4,8 @@ title:  "Plain Jane"
 date:   2025-04-04 13:23:17 -0400
 categories: plain demos babb
 ---
+<H2><a href="/babb/plainjane/workpads">LAUNCH</a></h2>
+
 # "Plain Jane" Workpad Editor - Comprehensive Technical Documentation
 
 <script>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workpads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="manifest" href="/manifest.webapp">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Workpads</h1>
+
+    <div class="add-new-button-container">
+      <a href="/edit.html" class="add-new-button">Create New Workpad</a>
+    </div>
+
+    <ul id="workpads-list">
+      <!-- Workpads will be loaded here by JavaScript -->
+    </ul>
+  </div>
+
+  <!-- Custom Message Box HTML -->
+  <div id="message-overlay" class="message-overlay hidden">
+    <div id="message-box" class="message-box">
+      <p id="message-text"></p>
+      <button id="message-ok-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- Dexie.js library (must be loaded before your scripts that use it) -->
+  <script src="/assets/js/dexie.min.js"></script>  <!-- Your Pako.js library (if needed on this page, otherwise remove) -->
+  <script src="/assets/js/pako.min.js"></script>
+  <!-- Your Index Workpads JavaScript -->
+  <script src="/index.js"></script>
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

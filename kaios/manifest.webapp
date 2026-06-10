@@ -1,0 +1,16 @@
+{
+  "name": "Workpads",
+  "description": "Business Records for All Ages",
+  "launch_path": "/edit-workpad.html",
+  "icons": {
+    "56": "/icons/icon-56.png",
+    "112": "/icons/icon-112.png"
+  },
+  "developer": {
+    "name": "Babb",
+    "url": "http://www.babb.tel"
+  },
+  "type": "privileged",
+  "fullscreen": "true",
+  "installs_allowed_from": ["*"]
+}
